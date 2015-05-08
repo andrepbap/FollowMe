@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nome_grupo">17dp</dimen>
+    <dimen name="descricao">15dip</dimen>
+    <dimen name="admin">13dip</dimen>
+    <dimen name="id_grupo">12dip</dimen>
+
+</resources>

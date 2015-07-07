@@ -76,6 +76,7 @@ public class MapaActivity extends Activity implements
 
 	//parametros
 	private String id_grupo, nome_grupo = null;
+	private Boolean atualizaTela = true;
 
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -151,16 +152,6 @@ public class MapaActivity extends Activity implements
 		}	
 	}
 
-	private void verificaStatusGPS() {
-		String provider = Settings.Secure.getString(getContentResolver(),
-				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-
-		if (!provider.contains("gps")) {
-			Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			startActivityForResult(intent, 1);
-		}
-	}
-
 	/*
 	 * Called when the Activity becomes visible.
 	 */
@@ -195,7 +186,14 @@ public class MapaActivity extends Activity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-
+		case R.id.atualiza_tela:
+			if(atualizaTela){
+				atualizaTela = false;
+			}
+			else{
+				atualizaTela = true;
+			}
+			break;
 		default:
 			break;
 		}
@@ -444,7 +442,7 @@ public class MapaActivity extends Activity implements
 							//Bitmap imgMarker = BitmapFactory.decodeResource(getResources(), R.drawable.dancingbanana);
 
 							loadMarker(obj.getString("foto_patch"), imgMarker, obj.getInt("id_usuario"), obj.getDouble("latitude"),obj.getDouble("longitude"));
-
+							Log.e(TAG, "marcador criado");
 						}
 
 						Log.e("recebimento", "ok!");
@@ -552,12 +550,16 @@ public class MapaActivity extends Activity implements
 	public void onMyLocationChange(Location location) {
 		// TODO Auto-generated method stub
 		if (location != null) {
-			CameraPosition currentPlace = new CameraPosition.Builder()
-					.target(new LatLng(location.getLatitude(), location
-							.getLongitude())).bearing(location.getBearing())
-					.tilt(65.5f).zoom(17).build();
-
-			map.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+			if(atualizaTela){
+				float zoom = map.getCameraPosition().zoom;
+				
+				CameraPosition currentPlace = new CameraPosition.Builder()
+						.target(new LatLng(location.getLatitude(), location
+								.getLongitude())).bearing(location.getBearing())
+						.tilt(65.5f).zoom(zoom).build();
+	
+				map.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+			}
 
 			// faz envio de coordenadas somente se Accuracy for menor que 100m
 			if (location.getAccuracy() < 100) {

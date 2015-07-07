@@ -2,8 +2,8 @@
 <resources>
     
     
-    <!-- menu main -->
-   
+    <!-- menu mapa -->
+   <string name="txt_atualiza_tela">Atualiza Tela on/off</string>
    
    
     <!-- menu login -->

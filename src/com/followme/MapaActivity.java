@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +32,6 @@ import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -149,7 +149,7 @@ public class MapaActivity extends Activity implements
 		if (id_grupo != null) {
 			iniciaTrajeto(Integer.parseInt(id_grupo));
 			Toast.makeText(getBaseContext(), nome_grupo + " carregado!", Toast.LENGTH_SHORT).show();
-		}	
+		}
 	}
 
 	/*
@@ -381,7 +381,7 @@ public class MapaActivity extends Activity implements
 	/*
 	 * Chamada pelo onMyLocationChange faz chamada ao servidor para pegar a
 	 * última posição do motorista. Caso motorista não esteja na arrayList
-	 * listMotorista, adciona, se não, atualiza a posição
+	 * listMotorista, adiciona, se não, atualiza a posição
 	 */
 	private class GetPosicoesAsyncTask extends AsyncTask<String, Void, String> {
 

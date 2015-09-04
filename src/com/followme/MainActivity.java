@@ -2,17 +2,13 @@ package com.followme;
 
 import com.followme.BD.UsuarioDA;
 import com.followme.adapter.CustomListAdapter;
-import com.followme.library.AppLocationManager;
-import com.followme.library.HttpConnection;
+import com.followme.location.SendPositionSingleton;
 import com.followme.model.Grupo;
 import com.followme.model.Usuario;
+import com.followme.proxy.WebServiceProxy;
  
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
  
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,10 +19,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,13 +43,6 @@ public class MainActivity extends Activity {
     
     //Data base
     private UsuarioDA bd;
-    
-	//atualização por tempo
-	private Timer timer;
-	private Boolean atualiza;
-    private TimerTask task0;
-    private Handler handler = new Handler();
-    AppLocationManager appLocationManager;
     private int id_logado;
  
     @Override
@@ -89,8 +76,7 @@ public class MainActivity extends Activity {
 	        getActionBar().setBackgroundDrawable(
 	                new ColorDrawable(Color.parseColor("#1b1b1b")));
 	 
-	        String json = generateSendJSON(id_logado);
-	        new GetGruposAsyncTask().execute(json);
+	        new GetGruposAsyncTask().execute();
 	        
 	        //click listener
 	        listView.setOnItemClickListener(new OnItemClickListener() {
@@ -107,11 +93,53 @@ public class MainActivity extends Activity {
 	            }
 	        });
 		}
-		
-		appLocationManager = new AppLocationManager(MainActivity.this);
-		timer = new Timer();
-		atualiza = true;
-		atualizaPorTempo();
+    }
+ 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        hidePDialog();
+    }
+ 
+    private void hidePDialog() {
+        if (pDialog != null) {
+            pDialog.dismiss();
+            pDialog = null;
+        }
+    }
+ 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.main_logoff:
+				logoff();
+				break;
+			case R.id.atualiza_tela:
+				if(SendPositionSingleton.getInstance(id_logado, getApplicationContext()).startStop()){
+					Toast.makeText(getBaseContext(), "Atualização de posição ligada =)", Toast.LENGTH_SHORT).show();
+				}
+				else{
+					Toast.makeText(getBaseContext(), "Atualização de posição desligada =(", Toast.LENGTH_SHORT).show();
+				}
+				break;	
+		}
+		return true;
+	}
+    
+    private void logoff(){
+    	bd.open();
+		bd.logoffUsuario();
+		bd.close();
+
+		Intent itLogoff = new Intent(this, LoginActivity.class);
+		startActivity(itLogoff);
     }
     
     private class GetGruposAsyncTask extends AsyncTask<String, Void, String> {
@@ -119,11 +147,8 @@ public class MainActivity extends Activity {
 		@Override
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
-
-			String api = getResources().getString(R.string.api_url);
-			String url = api + "grupo/get";
-			Log.e(TAG, url);
-			return HttpConnection.getSetDataWeb(url, "send-json", params[0]);
+			
+			return WebServiceProxy.getGrupos(id_logado);
 		}
 
 		protected void onPostExecute(String result) {
@@ -153,151 +178,4 @@ public class MainActivity extends Activity {
             adapter.notifyDataSetChanged();
 		}
 	}
- 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        hidePDialog();
-    }
- 
-    private void hidePDialog() {
-        if (pDialog != null) {
-            pDialog.dismiss();
-            pDialog = null;
-        }
-    }
- 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-    
-    @Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.main_logoff:
-				logoff();
-				break;
-			case R.id.atualiza_tela:
-				if(atualiza){
-					timer.cancel();
-					atualiza = false;
-					Toast.makeText(getBaseContext(), "Atualização de posição desligada =(",
-							Toast.LENGTH_SHORT).show();
-				}
-				else{
-					timer = new Timer();
-					atualizaPorTempo();
-					atualiza = true;
-					Toast.makeText(getBaseContext(), "Atualização de posição ligada =)",
-							Toast.LENGTH_SHORT).show();
-				}
-				break;	
-		}
-		return true;
-	}
-    
-    private void logoff(){
-    	bd.open();
-		bd.logoffUsuario();
-		bd.close();
-
-		Intent itLogoff = new Intent(this, LoginActivity.class);
-		startActivity(itLogoff);
-    }
-    
-    private String generateSendJSON(int id) {
-		JSONObject jo = new JSONObject();
-		String chave = getResources().getString(R.string.api_key);
-		try {
-			jo.put("api_key", chave);
-			jo.put("id_usuario", id);
-
-		} catch (JSONException e1) {
-			Log.e("Script", "erro Json");
-		}
-		return jo.toString();
-	}
-    
-	// --------------------------------------------atualização de posição--------------------------------------------
-	
-	private class PutPosiAsyncTask extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-
-			String api = getResources().getString(R.string.api_url);
-			String url = api + "usuario/put-posi";
-			Log.e(TAG, url);
-			return HttpConnection.getSetDataWeb(url, "send-json", params[0]);
-		}
-
-		protected void onPostExecute(String result) {
-			Log.e(TAG, result);
-			try {
-				JSONArray jArray = new JSONArray(result);
-				JSONObject obj = jArray.getJSONObject(0);
-
-				Log.e(TAG, "Envio: " + obj.getString("sucesso"));
-			} catch (IndexOutOfBoundsException e1) {
-				e1.printStackTrace();
-
-				String erro = getResources().getString(R.string.erro_conexao);
-
-				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
-						.show();
-			} catch (JSONException e2) {
-				e2.printStackTrace();
-
-				String erro = getResources().getString(R.string.erro_conexao);
-
-				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
-						.show();
-
-			} catch (Exception e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-				Toast.makeText(getBaseContext(), e3.getLocalizedMessage(),
-						Toast.LENGTH_SHORT).show();
-
-			}
-		}
-	}
-	
-	private void atualizaPorTempo(){
-//		if (task0 != null)
-//			return;
-		task0 = new TimerTask(){
-			public void run(){
-				handler.post(new Runnable(){
-					public void run(){
-						JSONObject jo = new JSONObject();
-						String chave = getResources().getString(R.string.api_key);
-						try {
-							jo.put("api_key", chave);
-							jo.put("usuario", id_logado);
-							jo.put("lat", appLocationManager.getLatitude());
-							jo.put("lng", appLocationManager.getLongitude());
-
-							// data
-							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-							String currentDateandTime = sdf.format(new Date());
-
-							jo.put("data", currentDateandTime);
-
-						} catch (JSONException e1) {
-							Log.e("Script", "erro Json");
-						}
-						
-						// envia localização
-						new PutPosiAsyncTask().execute(jo.toString());
-					}
-				});
-			}
-		};
-        timer.schedule(task0, 0, 5000); 
-    }
 }

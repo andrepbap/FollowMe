@@ -14,6 +14,7 @@ import com.followme.BD.UsuarioDA;
 import com.followme.library.HttpConnection;
 import com.followme.library.MarkerList;
 import com.followme.library.RoundedImageView;
+import com.followme.proxy.WebServiceProxy;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -70,7 +71,6 @@ public class MapaActivity extends Activity implements
 	private GoogleMap map;
 
 	// trajeto
-	private String json;
 	private MarkerList listUsuarios;
 	private int id_logado;
 
@@ -230,8 +230,7 @@ public class MapaActivity extends Activity implements
 
 			// carrega grupo
 			listUsuarios = new MarkerList();
-			json = generateGetJSON(id_grupo);
-			new GetPosicoesAsyncTask().execute(json);
+			new GetPosicoesAsyncTask().execute();
 
 		} else {
 			Toast.makeText(
@@ -257,19 +256,6 @@ public class MapaActivity extends Activity implements
 		} catch (Exception e) {
 			return false;
 		}
-	}
-
-	private String generateGetJSON(int id_grupo) {
-		JSONObject jo = new JSONObject();
-		String chave = getResources().getString(R.string.api_key);
-		try {
-			jo.put("id_grupo", id_grupo);
-			jo.put("api_key", chave);
-
-		} catch (JSONException e1) {
-			Log.e("Script", "erro Json");
-		}
-		return jo.toString();
 	}
 
 	private String generateSendJSON(double lat, double lng) {
@@ -389,10 +375,7 @@ public class MapaActivity extends Activity implements
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			String api = getResources().getString(R.string.api_url);
-			String url = api + "grupo/get-usuarios-posi";
-			Log.e(TAG, url);
-			return HttpConnection.getSetDataWeb(url, "send-json", params[0]);
+			return WebServiceProxy.getPosicoes(Integer.parseInt(id_grupo));
 		}
 
 		protected void onPostExecute(String result) {
@@ -571,7 +554,7 @@ public class MapaActivity extends Activity implements
 					new PutPosiAsyncTask().execute(sendJson);
 
 					// recebe localização
-					new GetPosicoesAsyncTask().execute(json);
+					new GetPosicoesAsyncTask().execute();
 					flagAtualizacao = 0;
 				}
 			}

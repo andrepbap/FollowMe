@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.location;
 
 import android.content.Context;
 import android.location.*;
@@ -90,5 +90,6 @@ public class AppLocationManager implements LocationListener {
         // TODO Auto-generated method stub
 
     }
+    
 
 }

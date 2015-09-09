@@ -63,6 +63,11 @@
             android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
+            android:name="com.followme.SettingActivity"
+            android:label="@string/settings_title" 
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
+        <activity
             android:name="com.followme.motoristaActivity.MotoristaActivity"
             android:label="@string/app_name" 
             android:windowSoftInputMode="stateHidden">

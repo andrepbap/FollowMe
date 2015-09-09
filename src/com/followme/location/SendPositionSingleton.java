@@ -14,26 +14,30 @@ public class SendPositionSingleton {
 	private TimerTask task0;
 	private Timer timer;
 	private AppLocationManager appLocationManager;
-	private final int user;
+	private int user;
 	private long period = 5000; //Default
 	
-	private SendPositionSingleton(int id_logado, Context cx){
-		user = id_logado;
+	private SendPositionSingleton(Context cx){
 		appLocationManager = new AppLocationManager(cx);
 		timer = null;
+		user = -1;
 	}
 	
-	public static SendPositionSingleton getInstance(int id_logado, Context cx){
+	public static SendPositionSingleton getInstance(Context cx){
 		if(mInstance == null){
-			mInstance = new SendPositionSingleton(id_logado, cx);
+			mInstance = new SendPositionSingleton(cx);
 		}
 
 		return mInstance;
 		
 	}
 	
-	public Boolean startStop(){
-		if(timer == null){
+	public void setUser(int id_logado){
+		user = id_logado;
+	}
+	
+	public Boolean start(){
+		if(timer == null && user != -1){
 			timer = new Timer();
 			
 			task0 = new TimerTask(){
@@ -46,11 +50,17 @@ public class SendPositionSingleton {
 	        
 	        return true;
 		}
-		else{
+		return false;
+		
+	}
+	
+	public Boolean stop(){
+		if(timer != null){
 			timer.cancel();
 			timer = null;
-			return false;
-		}	
+			return true;
+		}
+		return false;
 	}
 	
 	public void setPeriod(long period){

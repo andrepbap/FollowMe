@@ -62,6 +62,10 @@ public class MainActivity extends Activity {
 		else{ 
 			id_logado = bd.getUsuario().getId();
 			bd.close();
+			
+			//start send position thread
+			SendPositionSingleton.getInstance(getApplicationContext()).setUser(id_logado);
+			SendPositionSingleton.getInstance(getApplicationContext()).start();
 	        
 	        listView = (ListView) findViewById(R.id.list);
 	        adapter = new CustomListAdapter(this, grupoList);
@@ -122,12 +126,8 @@ public class MainActivity extends Activity {
 				logoff();
 				break;
 			case R.id.atualiza_tela:
-				if(SendPositionSingleton.getInstance(id_logado, getApplicationContext()).startStop()){
-					Toast.makeText(getBaseContext(), "Atualização de posição ligada =)", Toast.LENGTH_SHORT).show();
-				}
-				else{
-					Toast.makeText(getBaseContext(), "Atualização de posição desligada =(", Toast.LENGTH_SHORT).show();
-				}
+				Intent itSetting = new Intent(this, SettingActivity.class);
+				startActivity(itSetting);
 				break;	
 		}
 		return true;

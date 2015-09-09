@@ -142,5 +142,11 @@
     <string name="api_key">afae92e4fb8ca1258431f1a709910ca2dbd2f0e0</string>
     <string name="api_url">http://php-sigame.rhcloud.com/app/api/</string>
     <string name="menu_main_logoff">Logoff</string>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_refresh">Minha Posição</string>
+    <string name="setting_refresh_switch">Atualizar minha posição</string>
+    <string name="setting_refresh_time">Tempo de atualização</string>
+    <string name="setting_button_save">Salvar</string>
+    <string name="setting_button_cancel">Cancelar</string>
 
 </resources>

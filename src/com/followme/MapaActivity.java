@@ -133,7 +133,7 @@ public class MapaActivity extends Activity implements
 			String nome_grupo = it.getStringExtra("nome_grupo");
 			this.id_grupo = id_grupo;
 			this.nome_grupo = nome_grupo;
-			
+			getActionBar().setTitle(this.nome_grupo); 
 
 		} catch (Exception erro) {
 			Log.e("Script", "erro");

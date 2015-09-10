@@ -24,31 +24,23 @@
         android:text="@string/setting_refresh_time"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ExpandableListView
-        android:id="@+id/expandableListView1"
+    <Spinner
+        android:id="@+id/settingTimeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.11" >
-
-    </ExpandableListView>
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent" >
 
-        <Button
+        <!--
+              <Button
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="salvar"
             android:text="@string/setting_button_save" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="cancelar"
-            android:text="@string/setting_button_cancel" />
+        -->
 
     </LinearLayout>
 

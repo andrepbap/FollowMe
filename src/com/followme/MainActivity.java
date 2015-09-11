@@ -6,7 +6,6 @@ import com.followme.location.SendPositionSingleton;
 import com.followme.model.Grupo;
 import com.followme.model.Usuario;
 import com.followme.proxy.WebServiceProxy;
- 
 import java.util.ArrayList;
 import java.util.List;
  
@@ -29,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
  
 public class MainActivity extends Activity {
     // Log tag

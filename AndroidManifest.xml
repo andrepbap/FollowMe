@@ -10,7 +10,6 @@
     
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     
-    
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -23,7 +22,6 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-	<uses-permission android:name="com.globalhex.globalfence.permission.MAPS_RECEIVE"/>
 	
 	<permission
 		android:name="com.followme.permission.MAPS_RECEIVE"
@@ -127,12 +125,6 @@
             android:label="@string/titulo_main_list_carregar_grupo_activity_act" 
             android:windowSoftInputMode="stateHidden">
         </activity>
-        
-        
-        
-         
-        
-       
         <uses-library android:name="com.google.android.maps" ></uses-library>
     </application>
 

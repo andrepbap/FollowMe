@@ -6,7 +6,6 @@ import java.util.List;
 import com.followme.location.SendPositionSingleton;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,9 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ExpandableListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class SettingActivity extends Activity {
@@ -42,12 +39,14 @@ public class SettingActivity extends Activity {
 		}
 		
 		//constroi spinner
-		List<String> options = new ArrayList<String>();
-		options.add("10 segundos");
-		options.add("30 segundos");
-		options.add("1 minuto");
-		options.add("10 minutos");
-		final ArrayAdapter<String> aAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, options);
+		List<Period> options = new ArrayList<Period>();
+		options.add(new Period("", 0));
+		options.add(new Period("3 segundos", 3000));
+		options.add(new Period("10 segundos", 10000));
+		options.add(new Period("30 segundos", 30000));
+		options.add(new Period("1 minuto", 60000));
+		options.add(new Period("10 minutos", 600000));
+		final ArrayAdapter<Period> aAdapter = new ArrayAdapter<Period>(this, android.R.layout.simple_dropdown_item_1line, options);
 		timeSpn.setAdapter(aAdapter);
 		
 		//refreshCB listener
@@ -74,9 +73,9 @@ public class SettingActivity extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				// TODO Auto-generated method stub
-				//String selected = ((TextView) arg1).getText().toString();
-				String selected = aAdapter.getItem(position);
-				Toast.makeText(getBaseContext(), selected, Toast.LENGTH_SHORT).show();
+				Period selected = aAdapter.getItem(position);
+				
+				SendPositionSingleton.getInstance(getApplicationContext()).setPeriod(selected.getValue());
 			}
 
 			@Override
@@ -85,6 +84,25 @@ public class SettingActivity extends Activity {
 				
 			}
 		});
+	}
+	
+	private class Period{
+		
+		private String periodText;
+		private long value;
+		
+		public Period(String periodText, long value){
+			this.periodText = periodText;
+			this.value = value;
+		}
+		
+		public long getValue(){
+			return this.value;
+		}
+		
+		public String toString(){
+			return this.periodText;
+		}
 	}
 
 }

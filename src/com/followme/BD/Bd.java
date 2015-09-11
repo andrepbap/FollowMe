@@ -11,6 +11,7 @@ public class Bd {
 	
 	// nome da tabela
 	public static final String TABELA_USUARIO = "motorista";
+	public static final String TABELA_SETTINGS = "settings";
 	// campos da tabela
 	public static final String ID_USUARIO = "id";
 	public static final String NOME_USUARIO = "nome";   
@@ -18,6 +19,11 @@ public class Bd {
 	public static final String EMAIL_USUARIO = "email";
 	public static final String SENHA_USUARIO = "senha";
 	public static final String LOGADO_USUARIO = "logado"; 
+	
+	public static final String ID_SETTING = "id";
+	public static final String ATUALIZA = "atualiza"; 
+	public static final String TEXT_PERIOD = "text_period";
+	public static final String VALUE_PERIOD = "value_period"; 
 	
 	private static final String USUARIO_CREATE_TABLE = "CREATE TABLE "
 			+ TABELA_USUARIO + "  (" +
@@ -27,6 +33,14 @@ public class Bd {
 										EMAIL_USUARIO + " TEXT NOT NULL,"+
 										SENHA_USUARIO + " TEXT NOT NULL,"+
 										LOGADO_USUARIO + " BOOLEAN NOT NULL"+
+								  "  );";
+	
+	private static final String SETTINGS_CREATE_TABLE = "CREATE TABLE "
+			+ TABELA_SETTINGS + "  (" +
+										ID_SETTING + " INTEGER NOT NULL PRIMARY KEY," +
+										ATUALIZA + " BOOLEAN NOT NULL, " +
+										TEXT_PERIOD + " TEXT NOT NULL,"+
+										VALUE_PERIOD + " LONG NOT NULL"+
 								  "  );";
 	
 	private static final String TAG = "Db";

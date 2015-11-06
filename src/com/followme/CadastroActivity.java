@@ -22,10 +22,10 @@ import android.database.Cursor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.followme.BD.UsuarioDA;
 import com.followme.library.Encrypt;
 import com.followme.library.HttpConnection;
 import com.followme.model.Usuario;
+import com.followme.model.DAO.UsuarioDAO;
 
 public class CadastroActivity extends Activity {
 
@@ -336,7 +336,7 @@ public class CadastroActivity extends Activity {
 
 		protected void onPostExecute(String result) {
 			Log.e("json", result);
-			UsuarioDA bd = new UsuarioDA(getApplicationContext());
+			UsuarioDAO bd = new UsuarioDAO(getApplicationContext());
 
 			try {
 				JSONObject jObj = new JSONObject(result);

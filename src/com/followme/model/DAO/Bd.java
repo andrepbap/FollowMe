@@ -1,4 +1,4 @@
-package com.followme.BD;
+package com.followme.model.DAO;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -89,6 +89,7 @@ public class Bd {
 		public void onCreate(SQLiteDatabase db) {
 	 
 			db.execSQL(USUARIO_CREATE_TABLE);
+			db.execSQL(SETTINGS_CREATE_TABLE);
 			Log.w("DbAdapter","DB criado com sucesso!");
 		}
 	 
@@ -100,25 +101,33 @@ public class Bd {
 			if (oldVersion == validLast && validLast > 0)
 			{
 				db.execSQL("ALTER TABLE " + TABELA_USUARIO   + " RENAME TO " + TABELA_USUARIO   + "BK");
+				db.execSQL("ALTER TABLE " + TABELA_SETTINGS   + " RENAME TO " + TABELA_SETTINGS   + "BK");
 			}
 			// elimina tabelas
 			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO);
+			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTINGS);
 			// cria novas tabelas
 			onCreate(db);
-			// Copia dados anteriores para tabelas novas SEMPRE ALTERAR QUANDO MUDAR VERSï¿½O
+			// Copia dados anteriores para tabelas novas SEMPRE ALTERAR QUANDO MUDAR VERSÇÃO
 			if (oldVersion == validLast && validLast > 0)
 			{
 				db.execSQL("INSERT INTO "+ TABELA_USUARIO + " SELECT " +	ID_USUARIO + "," + 
-																			NOME_USUARIO + "," +
-																			NASCIMENTO_USUARIO + "," +
-																			EMAIL_USUARIO + "," +
-																			SENHA_USUARIO + "," +
-																			LOGADO_USUARIO +
-															" FROM " + TABELA_USUARIO +"BK");
+									NOME_USUARIO + "," +
+									NASCIMENTO_USUARIO + "," +
+									EMAIL_USUARIO + "," +
+									SENHA_USUARIO + "," +
+									LOGADO_USUARIO +
+					" FROM " + TABELA_USUARIO +"BK");
+				db.execSQL("INSERT INTO "+ TABELA_SETTINGS + " SELECT " +	ID_SETTING + "," + 
+									ATUALIZA + "," +
+									TEXT_PERIOD + "," +
+									VALUE_PERIOD + 
+					" FROM " + TABELA_SETTINGS +"BK");
 
 			}			
-			// Elimina tabelas provisï¿½rias utilizadas para manter os dados
+			// Elimina tabelas provisórias utilizadas para manter os dados
 			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO    + "_BK");
+			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTINGS   + "_BK");
 		}
 	}
     

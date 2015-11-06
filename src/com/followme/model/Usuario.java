@@ -1,8 +1,6 @@
 package com.followme.model;
 
-import java.io.Serializable;
-
-public class Usuario implements Serializable {
+public class Usuario {
 	
 	private int id;
 	private String nome;

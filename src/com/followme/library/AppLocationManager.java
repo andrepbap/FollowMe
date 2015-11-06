@@ -1,4 +1,4 @@
-package com.followme.location;
+package com.followme.library;
 
 import android.content.Context;
 import android.location.*;

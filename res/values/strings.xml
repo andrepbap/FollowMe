@@ -148,5 +148,6 @@
     <string name="setting_refresh_time">Tempo de atualização</string>
     <string name="setting_button_save">Salvar</string>
     <string name="setting_button_cancel">Cancelar</string>
+    <string name="txt_settings">Configurações</string>
 
 </resources>

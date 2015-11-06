@@ -10,11 +10,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
-import com.followme.BD.UsuarioDA;
 import com.followme.library.HttpConnection;
 import com.followme.library.MarkerList;
 import com.followme.library.RoundedImageView;
-import com.followme.proxy.WebServiceProxy;
+import com.followme.model.DAO.UsuarioDAO;
+import com.followme.model.proxy.UsuarioProxy;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -65,7 +65,7 @@ public class MapaActivity extends Activity implements
 	final int TEMPO_ATUALIZACAO = 1;
 
 	// bd
-	private UsuarioDA bd;
+	private UsuarioDAO bd;
 
 	// mapa
 	private GoogleMap map;
@@ -120,7 +120,7 @@ public class MapaActivity extends Activity implements
 		mLocationClient = new LocationClient(this, this, this);
 
 		//recupera usuario
-		bd = new UsuarioDA(getApplicationContext());
+		bd = new UsuarioDAO(getApplicationContext());
 		bd.open();
 		id_logado = bd.getUsuario().getId();
 		bd.close();
@@ -186,14 +186,9 @@ public class MapaActivity extends Activity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.atualiza_tela:
-			if(atualizaTela){
-				atualizaTela = false;
-			}
-			else{
-				atualizaTela = true;
-			}
-			break;
+		case R.id.menu_settings:
+			Intent itSetting = new Intent(this, SettingActivity.class);
+			startActivity(itSetting);
 		default:
 			break;
 		}
@@ -375,7 +370,7 @@ public class MapaActivity extends Activity implements
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			return WebServiceProxy.getPosicoes(Integer.parseInt(id_grupo));
+			return UsuarioProxy.getPosicoes(Integer.parseInt(id_grupo));
 		}
 
 		protected void onPostExecute(String result) {

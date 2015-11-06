@@ -3,10 +3,11 @@ package com.followme;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.followme.BD.UsuarioDA;
 import com.followme.library.Encrypt;
 import com.followme.library.HttpConnection;
 import com.followme.model.Usuario;
+import com.followme.model.DAO.UsuarioDAO;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -100,7 +101,7 @@ public class LoginActivity extends Activity {
 
 		protected void onPostExecute(String result) {
 			Log.e(TAG, result);
-			UsuarioDA bd = new UsuarioDA(getApplicationContext());
+			UsuarioDAO bd = new UsuarioDAO(getApplicationContext());
 			
 			try {
 				JSONArray jArray = new JSONArray(result);

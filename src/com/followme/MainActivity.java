@@ -1,11 +1,12 @@
 package com.followme;
 
-import com.followme.BD.UsuarioDA;
 import com.followme.adapter.CustomListAdapter;
-import com.followme.location.SendPositionSingleton;
+import com.followme.library.SendPositionSingleton;
 import com.followme.model.Grupo;
 import com.followme.model.Usuario;
-import com.followme.proxy.WebServiceProxy;
+import com.followme.model.DAO.UsuarioDAO;
+import com.followme.model.proxy.GrupoProxy;
+
 import java.util.ArrayList;
 import java.util.List;
  
@@ -40,7 +41,7 @@ public class MainActivity extends Activity {
     private CustomListAdapter adapter;
     
     //Data base
-    private UsuarioDA bd;
+    private UsuarioDAO bd;
     private int id_logado;
  
     @Override
@@ -49,7 +50,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         // verifica login
-		bd = new UsuarioDA(getApplicationContext());
+		bd = new UsuarioDAO(getApplicationContext());
 		bd.open();
 		if (bd.getUsuario() == null) {
 			bd.close();
@@ -123,7 +124,7 @@ public class MainActivity extends Activity {
 			case R.id.main_logoff:
 				logoff();
 				break;
-			case R.id.atualiza_tela:
+			case R.id.menu_settings:
 				Intent itSetting = new Intent(this, SettingActivity.class);
 				startActivity(itSetting);
 				break;	
@@ -146,7 +147,7 @@ public class MainActivity extends Activity {
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			return WebServiceProxy.getGrupos(id_logado);
+			return GrupoProxy.getGrupos(id_logado);
 		}
 
 		protected void onPostExecute(String result) {

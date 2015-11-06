@@ -18,10 +18,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.Cursor;
-import com.followme.BD.UsuarioDA;
 import com.followme.library.Encrypt;
 import com.followme.library.HttpConnection;
 import com.followme.model.Usuario;
+import com.followme.model.DAO.UsuarioDAO;
 
 public class EdicaoActivity extends Activity {
 
@@ -37,7 +37,7 @@ public class EdicaoActivity extends Activity {
 
 	Button btnSalvar, btnVoltar;
 	
-	private UsuarioDA bd;
+	private UsuarioDAO bd;
 	private Usuario motorista;
 
 	@Override
@@ -45,7 +45,7 @@ public class EdicaoActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edicao);
 
-		bd = new UsuarioDA(getApplicationContext());
+		bd = new UsuarioDAO(getApplicationContext());
 				
 		inicializaComponentes();
 
@@ -288,7 +288,7 @@ public class EdicaoActivity extends Activity {
 		}
 
 		protected void onPostExecute(String result) {
-			UsuarioDA bd = new UsuarioDA(getApplicationContext());
+			UsuarioDAO bd = new UsuarioDAO(getApplicationContext());
 
 			try {
 				JSONObject jObj = new JSONObject(result);

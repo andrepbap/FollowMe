@@ -1,4 +1,4 @@
-package com.followme.BD;
+package com.followme.model.DAO;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.followme.model.Usuario;
 
-public class UsuarioDA extends Bd{
+public class UsuarioDAO extends Bd{
 	
-	public UsuarioDA(Context ctx)
+	public UsuarioDAO(Context ctx)
 	{
 		super(ctx);
 	}

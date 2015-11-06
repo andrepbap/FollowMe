@@ -1,6 +1,7 @@
 package com.followme.app;
 
-import com.followme.util.LruBitmapCache;
+import com.followme.library.LruBitmapCache;
+
 import android.app.Application;
 import android.text.TextUtils;
  

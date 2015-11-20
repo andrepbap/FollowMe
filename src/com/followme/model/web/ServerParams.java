@@ -2,7 +2,7 @@ package com.followme.model.web;
 
 import android.util.Log;
 
-import com.followme.library.ApiCrypter;
+import com.followme.utils.encryption.ApiCrypter;
 
 public class ServerParams {
 
@@ -10,7 +10,6 @@ public class ServerParams {
 	private final static String API_URL = "http://192.168.2.111:8080/api/";
 	
 	public static String getEncryptedApiKey() {
-		
 		long unixTime = System.currentTimeMillis() / 1000L;
 		Log.e("key + salt", API_KEY + "-" + Long.toString(unixTime));
 		

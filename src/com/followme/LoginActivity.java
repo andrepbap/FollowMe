@@ -5,12 +5,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
-import com.followme.library.Encrypt;
-import com.followme.library.HttpConnection;
-import com.followme.library.Json;
-import com.followme.model.Usuario;
-import com.followme.model.DAO.UsuarioDAO;
+import com.followme.entity.Usuario;
+import com.followme.model.UsuarioDAO;
 import com.followme.model.web.UserWeb;
+import com.followme.utils.HttpConnection;
+import com.followme.utils.Json;
+import com.followme.utils.encryption.Encrypt;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -87,7 +87,9 @@ public class LoginActivity extends Activity {
 				try {
 
 					Usuario usuario = new Usuario(Integer.parseInt(json
-							.getString("idUser")), json.getString("userName"),
+							.getString("idUser")), 
+							json.getString("userName"),
+							json.getString("birth"),
 							json.getString("email"),
 							json.getString("password"), 1);
 

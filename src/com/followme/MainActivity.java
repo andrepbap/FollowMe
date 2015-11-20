@@ -1,11 +1,10 @@
 package com.followme;
 
-import com.followme.adapter.CustomListAdapter;
-import com.followme.library.SendPositionSingleton;
-import com.followme.model.Group;
-import com.followme.model.Usuario;
-import com.followme.model.DAO.UsuarioDAO;
-import com.followme.model.web.GroupWeb;
+import com.followme.entity.Group;
+import com.followme.list.GroupListAdapter;
+import com.followme.model.UsuarioDAO;
+import com.followme.model.web.UserWeb;
+import com.followme.utils.location.SendPositionSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.TextView;
  
 public class MainActivity extends Activity {
     // Log tag
@@ -38,7 +36,7 @@ public class MainActivity extends Activity {
     private ProgressDialog pDialog;
     private List<Group> grupoList = new ArrayList<Group>();
     private ListView listView;
-    private CustomListAdapter adapter;
+    private GroupListAdapter adapter;
     
     //Data base
     private UsuarioDAO bd;
@@ -63,11 +61,11 @@ public class MainActivity extends Activity {
 			bd.close();
 			
 			//start send position thread
-			SendPositionSingleton.getInstance(getApplicationContext()).setUser(id_logado);
-			SendPositionSingleton.getInstance(getApplicationContext()).start();
+//			SendPositionSingleton.getInstance(getApplicationContext()).setUser(id_logado);
+//			SendPositionSingleton.getInstance(getApplicationContext()).start();
 	        
 	        listView = (ListView) findViewById(R.id.list);
-	        adapter = new CustomListAdapter(this, grupoList);
+	        adapter = new GroupListAdapter(this, grupoList);
 	        listView.setAdapter(adapter);
 	 
 	        pDialog = new ProgressDialog(this);
@@ -85,13 +83,16 @@ public class MainActivity extends Activity {
 	        listView.setOnItemClickListener(new OnItemClickListener() {
 	            public void onItemClick(AdapterView<?> parent, View view,
 	                    int position, long id) {
+	            	Group group = grupoList.get(position);
+	            	String idGroup = Integer.toString(group.getId());
+	            	String gorupName = group.getNome();
 
-	            	TextView id_grupo = (TextView) view.findViewById(R.id.id_grupo);
-	            	TextView nome = (TextView) view.findViewById(R.id.nome_grupo);
+//	            	TextView id_grupo = (TextView) view.findViewById(R.id.id_grupo);
+//	            	TextView nome = (TextView) view.findViewById(R.id.nome_grupo);
 
 	            	Intent it = new Intent(MainActivity.this, MapaActivity.class);
-	    			it.putExtra("id_grupo", id_grupo.getText().toString());
-	    			it.putExtra("nome_grupo", nome.getText().toString());
+	    			it.putExtra("id_grupo", idGroup);
+	    			it.putExtra("nome_grupo", gorupName);
 	    			startActivity(it);
 	            }
 	        });
@@ -147,7 +148,7 @@ public class MainActivity extends Activity {
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			return GroupWeb.getGroups(id_logado);
+			return UserWeb.getGroups(id_logado);
 		}
 
 		protected void onPostExecute(String result) {

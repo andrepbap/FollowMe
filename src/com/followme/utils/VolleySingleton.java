@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,8 +1,7 @@
-package com.followme.adapter;
+package com.followme.list;
 
 import com.followme.R;
-import com.followme.app.AppController;
-import com.followme.model.Group;
+import com.followme.entity.Group;
  
 import java.util.List;
  
@@ -17,13 +16,13 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
  
-public class CustomListAdapter extends BaseAdapter {
+public class GroupListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
     private List<Group> grupoItems;
-    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
+    ImageLoader imageLoader = ListViewController.getInstance().getImageLoader();
  
-    public CustomListAdapter(Activity activity, List<Group> grupoItems) {
+    public GroupListAdapter(Activity activity, List<Group> grupoItems) {
         this.activity = activity;
         this.grupoItems = grupoItems;
     }
@@ -53,7 +52,7 @@ public class CustomListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_row, null);
  
         if (imageLoader == null)
-            imageLoader = AppController.getInstance().getImageLoader();
+            imageLoader = ListViewController.getInstance().getImageLoader();
         NetworkImageView thumbNail = (NetworkImageView) convertView
                 .findViewById(R.id.thumbnail);
         TextView nome = (TextView) convertView.findViewById(R.id.nome_grupo);

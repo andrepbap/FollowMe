@@ -1,4 +1,4 @@
-package com.followme.model.DAO;
+package com.followme.model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.followme.model.Usuario;
+import com.followme.entity.Usuario;
 
 public class UsuarioDAO extends Bd{
 	

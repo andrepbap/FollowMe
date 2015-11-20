@@ -1,4 +1,4 @@
-package com.followme.model;
+package com.followme.entity;
 
 public class Group {
 	private int id;

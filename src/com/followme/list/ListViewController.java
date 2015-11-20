@@ -1,6 +1,6 @@
-package com.followme.app;
+package com.followme.list;
 
-import com.followme.library.LruBitmapCache;
+import com.followme.utils.LruBitmapCache;
 
 import android.app.Application;
 import android.text.TextUtils;
@@ -10,14 +10,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
  
-public class AppController extends Application {
+public class ListViewController extends Application {
  
-    public static final String TAG = AppController.class.getSimpleName();
+    public static final String TAG = ListViewController.class.getSimpleName();
  
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
  
-    private static AppController mInstance;
+    private static ListViewController mInstance;
  
     @Override
     public void onCreate() {
@@ -25,7 +25,7 @@ public class AppController extends Application {
         mInstance = this;
     }
  
-    public static synchronized AppController getInstance() {
+    public static synchronized ListViewController getInstance() {
         return mInstance;
     }
  

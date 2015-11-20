@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.utils;
 
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 

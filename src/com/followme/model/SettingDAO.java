@@ -1,4 +1,4 @@
-package com.followme.model.DAO;
+package com.followme.model;
 
 import android.content.Context;
 

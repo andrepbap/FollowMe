@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.utils.location;
 
 import android.content.Context;
 import android.location.*;
@@ -18,7 +18,7 @@ public class AppLocationManager implements LocationListener {
         criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         provider = locationManager.getBestProvider(criteria, true);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1,
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1,
                 0, this);
         setMostRecentLocation(locationManager.getLastKnownLocation(provider));
 
@@ -48,8 +48,6 @@ public class AppLocationManager implements LocationListener {
         double lon = (double) (location.getLongitude());/// * 1E6);
         double lat = (double) (location.getLatitude());// * 1E6);
 
-//      int lontitue = (int) lon;
-//      int latitute = (int) lat;
         latitude = lat + "";
         longitude = lon + "";
 

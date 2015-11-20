@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.utils.encryption;
 
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.Cipher;

@@ -1,4 +1,4 @@
-package com.followme.library;
+package com.followme.utils.location;
 
 import java.util.Timer;
 import java.util.TimerTask;

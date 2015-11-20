@@ -6,7 +6,7 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.followme.library.HttpConnection;
+import com.followme.utils.HttpConnection;
 
 import android.util.Log;
 
@@ -31,19 +31,18 @@ public abstract class UserWeb {
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
-	public static String atualizaPosicao(int id_usuario, String latitude, String longitude) {
-		String url = ServerParams.getApiUrl() + "usuario/put-posi";
+	public static String atualizaPosicao(int idUser, String latitude, String longitude) {
+		String url = ServerParams.getApiUrl() + "user/" + idUser + "/set-position";
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String currentDateandTime = sdf.format(new Date());
 		
 		jo = new JSONObject();
 		try {
-			jo.put("api_key", ServerParams.getEncryptedApiKey());
-			jo.put("usuario", id_usuario);
-			jo.put("lat", latitude);
-			jo.put("lng", longitude);
-			jo.put("data", currentDateandTime);
+			jo.put("apiKey", ServerParams.getEncryptedApiKey());
+			jo.put("latitude", latitude);
+			jo.put("longitude", longitude);
+			jo.put("date", currentDateandTime);
 
 		} catch (JSONException e1) {
 			Log.e("Script", "erro atualizaPosicao");
@@ -52,19 +51,17 @@ public abstract class UserWeb {
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
-	public static String getPosicoes(int id_grupo){
-		String url = ServerParams.getApiUrl() + "grupo/get-usuarios-posi";
+	public static String getGroups(int idUser){
+		String url = ServerParams.getApiUrl() + "user/"+ idUser +"/get-groups";
 		
 		jo = new JSONObject();
-		
 		try {
-			jo.put("id_grupo", id_grupo);
-			jo.put("api_key", ServerParams.getEncryptedApiKey());
+			jo.put("apiKey", ServerParams.getEncryptedApiKey());
 
 		} catch (JSONException e1) {
 			Log.e("Script", "erro Json");
 		}
-
+		
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	

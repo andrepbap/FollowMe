@@ -22,10 +22,11 @@ import android.database.Cursor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.followme.library.Encrypt;
-import com.followme.library.HttpConnection;
-import com.followme.model.Usuario;
-import com.followme.model.DAO.UsuarioDAO;
+
+import com.followme.entity.Usuario;
+import com.followme.model.UsuarioDAO;
+import com.followme.utils.HttpConnection;
+import com.followme.utils.encryption.Encrypt;
 
 public class CadastroActivity extends Activity {
 

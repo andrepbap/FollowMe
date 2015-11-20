@@ -18,10 +18,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.Cursor;
-import com.followme.library.Encrypt;
-import com.followme.library.HttpConnection;
-import com.followme.model.Usuario;
-import com.followme.model.DAO.UsuarioDAO;
+
+import com.followme.entity.Usuario;
+import com.followme.model.UsuarioDAO;
+import com.followme.utils.HttpConnection;
+import com.followme.utils.encryption.Encrypt;
 
 public class EdicaoActivity extends Activity {
 

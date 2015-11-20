@@ -5,16 +5,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
-import com.followme.library.HttpConnection;
-import com.followme.library.MarkerList;
-import com.followme.library.RoundedImageView;
-import com.followme.model.DAO.UsuarioDAO;
+import com.followme.model.UsuarioDAO;
+import com.followme.model.web.GroupWeb;
 import com.followme.model.web.UserWeb;
+import com.followme.utils.HttpConnection;
+import com.followme.utils.MarkerList;
+import com.followme.utils.RoundedImageView;
+import com.followme.utils.location.SendPositionSingleton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -59,10 +63,11 @@ public class MapaActivity extends Activity implements
 	// imagens
 	private Handler handler = new Handler();
 
-	// my location
+	// location
 	private LocationClient mLocationClient;
-	private int flagAtualizacao;
 	final int TEMPO_ATUALIZACAO = 1;
+	private TimerTask task0;
+	private Timer timer;
 
 	// bd
 	private UsuarioDAO bd;
@@ -114,18 +119,16 @@ public class MapaActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_mapa);
 
-		//mantem tela
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		mLocationClient = new LocationClient(this, this, this);
 
-		//recupera usuario
+		//find user
 		bd = new UsuarioDAO(getApplicationContext());
 		bd.open();
 		id_logado = bd.getUsuario().getId();
 		bd.close();
 
-		// tenta setar os dados da MainListCarregarGrupoTrajetoActivity
 		try {
 			Intent it = getIntent();
 
@@ -172,6 +175,10 @@ public class MapaActivity extends Activity implements
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		mLocationClient.disconnect();
+		if(timer != null){
+			timer.cancel();
+			timer = null;
+		}
 		super.onStop();
 	}
 
@@ -213,28 +220,7 @@ public class MapaActivity extends Activity implements
 		}
 
 	}
-
-	// --------------------------------------------funcões de controle de
-	// trajeto--------------------------------------------
-
-	private void iniciaTrajeto(int id_grupo) {
-		if (Conectado(getApplicationContext()) == true) {
-
-			flagAtualizacao = 0;
-			map.setOnMyLocationChangeListener(this);
-
-			// carrega grupo
-			listUsuarios = new MarkerList();
-			new GetPosicoesAsyncTask().execute();
-
-		} else {
-			Toast.makeText(
-					getBaseContext(),
-					"Erro ao iniciar o grupo. Verifique sua conexão e tente novamente.",
-					Toast.LENGTH_SHORT).show();
-		}
-	}
-
+	
 	private boolean Conectado(Context context) {
 		try {
 			ConnectivityManager cm = (ConnectivityManager) context
@@ -252,36 +238,39 @@ public class MapaActivity extends Activity implements
 			return false;
 		}
 	}
-
-	private String generateSendJSON(double lat, double lng) {
-		JSONObject jo = new JSONObject();
-		String chave = getResources().getString(R.string.api_key);
-		try {
-			jo.put("api_key", chave);
-			jo.put("usuario", id_logado);
-			jo.put("lat", lat);
-			jo.put("lng", lng);
-
-			// data
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String currentDateandTime = sdf.format(new Date());
-
-			jo.put("data", currentDateandTime);
-
-		} catch (JSONException e1) {
-			Log.e("Script", "erro Json");
-		}
-		return jo.toString();
+	
+	private void getUsersLocationTask(){
+		timer = new Timer();
+		
+		task0 = new TimerTask(){
+			public void run(){
+				new GetUsersLocationAsyncTask().execute();
+			}
+		};
+        timer.schedule(task0, 0, 5000);
 	}
 
-	// --------------------------------------------acesso a web
-	// services--------------------------------------------
+	private void iniciaTrajeto(int id_grupo) {
+		if (Conectado(getApplicationContext()) == true) {
+			map.setOnMyLocationChangeListener(this);
 
-	private void loadMarker(String patch, Bitmap icone, int userId, double latitude, double longitude) {
+			listUsuarios = new MarkerList();
+			getUsersLocationTask();
+			SendPositionSingleton.getInstance(getApplicationContext()).setPeriod(5000);
+
+		} else {
+			Toast.makeText(
+					getBaseContext(),
+					"Erro ao iniciar o grupo. Verifique sua conexão e tente novamente.",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void loadMarker(String patch, Bitmap icon, int userId, double latitude, double longitude) {
 		
 		final String param = patch;
 		final int id = userId;
-		final Bitmap icon = icone;
+		final Bitmap newIcon = icon;
 		final double lat = latitude, lng = longitude;
 
 		new Thread() {
@@ -295,7 +284,7 @@ public class MapaActivity extends Activity implements
 
 					Bitmap roundFoto = RoundedImageView.getCroppedBitmap(foto,
 							100);
-					final Bitmap markerIcon = RoundedImageView.getMergedBitmap(icon, roundFoto, getBaseContext());
+					final Bitmap markerIcon = RoundedImageView.getMergedBitmap(newIcon, roundFoto, getBaseContext());
 
 					handler.post(new Runnable() {
 						public void run() {
@@ -315,62 +304,12 @@ public class MapaActivity extends Activity implements
 		}.start();
 	}
 
-	private class PutPosiAsyncTask extends AsyncTask<String, Void, String> {
+	private class GetUsersLocationAsyncTask extends AsyncTask<String, Void, String> {
 
 		@Override
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
-
-			String api = getResources().getString(R.string.api_url);
-			String url = api + "usuario/put-posi";
-			Log.e(TAG, url);
-			return HttpConnection.getSetDataWeb(url, params[0]);
-		}
-
-		protected void onPostExecute(String result) {
-			Log.e(TAG, result);
-			try {
-				JSONArray jArray = new JSONArray(result);
-				JSONObject obj = jArray.getJSONObject(0);
-
-				Log.e(TAG, "Envio: " + obj.getString("sucesso"));
-			} catch (IndexOutOfBoundsException e1) {
-				e1.printStackTrace();
-
-				String erro = getResources().getString(R.string.erro_conexao);
-
-				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
-						.show();
-			} catch (JSONException e2) {
-				e2.printStackTrace();
-
-				String erro = getResources().getString(R.string.erro_conexao);
-
-				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
-						.show();
-
-			} catch (Exception e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-				Toast.makeText(getBaseContext(), e3.getLocalizedMessage(),
-						Toast.LENGTH_SHORT).show();
-
-			}
-		}
-	}
-
-	/*
-	 * Chamada pelo onMyLocationChange faz chamada ao servidor para pegar a
-	 * última posição do motorista. Caso motorista não esteja na arrayList
-	 * listMotorista, adiciona, se não, atualiza a posição
-	 */
-	private class GetPosicoesAsyncTask extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			
-			return UserWeb.getPosicoes(Integer.parseInt(id_grupo));
+			return GroupWeb.getUsersLocation(Integer.parseInt(id_grupo));
 		}
 
 		protected void onPostExecute(String result) {
@@ -383,14 +322,11 @@ public class MapaActivity extends Activity implements
 					JSONObject obj = jArray.getJSONObject(i);
 
 					try {
-						// se o motorista já está contido no trajeto, atualiza
-						// posição, se não, insere.
-						if (listUsuarios.contains(obj.getInt("id_usuario"))) {
+						if (listUsuarios.contains(obj.getInt("idUser"))) {
 							listUsuarios
-								.get(obj.getInt("id_usuario"))
+								.get(obj.getInt("idUser"))
 								.setPosition( new LatLng(obj.getDouble("latitude"),obj.getDouble("longitude")));
 						} else {
-							// define cor do marcador
 							int color;
 							switch (i) {
 							case 0:
@@ -417,9 +353,8 @@ public class MapaActivity extends Activity implements
 							}
 
 							Bitmap imgMarker = BitmapFactory.decodeResource(getResources(), color);
-							//Bitmap imgMarker = BitmapFactory.decodeResource(getResources(), R.drawable.dancingbanana);
 
-							loadMarker(obj.getString("foto_patch"), imgMarker, obj.getInt("id_usuario"), obj.getDouble("latitude"),obj.getDouble("longitude"));
+							loadMarker(obj.getString("photo_patch"), imgMarker, obj.getInt("idUser"), obj.getDouble("latitude"),obj.getDouble("longitude"));
 							Log.e(TAG, "marcador criado");
 						}
 
@@ -459,9 +394,6 @@ public class MapaActivity extends Activity implements
 		}
 
 	}
-
-	// --------------------------------------------métodos das
-	// interfaces--------------------------------------------
 
 	/*
 	 * Called by Location Services when the request to connect the client
@@ -538,22 +470,6 @@ public class MapaActivity extends Activity implements
 	
 				map.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
 			}
-
-			// faz envio de coordenadas somente se Accuracy for menor que 100m
-			if (location.getAccuracy() < 100) {
-				flagAtualizacao++;
-
-				if (flagAtualizacao == TEMPO_ATUALIZACAO) {
-					// envia localização
-					String sendJson = generateSendJSON(location.getLatitude(), location.getLongitude());
-					new PutPosiAsyncTask().execute(sendJson);
-
-					// recebe localização
-					new GetPosicoesAsyncTask().execute();
-					flagAtualizacao = 0;
-				}
-			}
-
 		}
 
 	}

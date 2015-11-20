@@ -1,4 +1,4 @@
-package com.followme.model;
+package com.followme.entity;
 
 public class Usuario {
 
@@ -14,16 +14,7 @@ public class Usuario {
 	public Usuario() {
 		super();
 	}
-
-	public Usuario(int id, String nome, String email, String senha, int logado) {
-		super();
-		this.id = id;
-		this.nome = nome;
-		this.email = email;
-		this.senha = senha;
-		this.logado = logado;
-	}
-
+	
 	public Usuario(int id, String nome, String birth, String email,
 			String senha, int logado) {
 		super();

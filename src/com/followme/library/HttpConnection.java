@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class HttpConnection {
 
-    public static  String getSetDataWeb(String url, String method, String data){
+    public static  String getSetDataWeb(String url, String data){
 
 		HttpClient httpClient = new DefaultHttpClient();
 		
@@ -25,14 +25,10 @@ public class HttpConnection {
 		
 		try {
 			ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-			valores.add(new BasicNameValuePair("method", method));
 			valores.add(new BasicNameValuePair("json", data));
-			
 			httpPost.setEntity(new UrlEncodedFormEntity(valores));
 			HttpResponse resposta = httpClient.execute(httpPost);
 			answer = EntityUtils.toString(resposta.getEntity());
-			
-			
 		}
 		catch(NullPointerException e){ 
 			e.printStackTrace(); 

@@ -234,7 +234,7 @@ public class EdicaoActivity extends Activity {
 		
 		
 		// gera o json
-		String json = geraJSON(motorista.getId(), motorista.getNome(), motorista.getNascimento(), motorista.getEmail(), motorista.getSenha(), Encrypt.sha1Hash(txtSenhaAtual.getText().toString()));
+		String json = geraJSON(motorista.getId(), motorista.getNome(), motorista.getBirth(), motorista.getEmail(), motorista.getSenha(), Encrypt.sha1Hash(txtSenhaAtual.getText().toString()));
 
 		progress.setVisibility(View.VISIBLE);
 		
@@ -284,7 +284,7 @@ public class EdicaoActivity extends Activity {
 		protected String doInBackground(String... params) {
 		
 
-			return HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/motorista/put", "send-json", params[0]);
+			return HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/motorista/put", params[0]);
 		}
 
 		protected void onPostExecute(String result) {

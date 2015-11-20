@@ -2,7 +2,7 @@ package com.followme.adapter;
 
 import com.followme.R;
 import com.followme.app.AppController;
-import com.followme.model.Grupo;
+import com.followme.model.Group;
  
 import java.util.List;
  
@@ -20,10 +20,10 @@ import com.android.volley.toolbox.NetworkImageView;
 public class CustomListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<Grupo> grupoItems;
+    private List<Group> grupoItems;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
  
-    public CustomListAdapter(Activity activity, List<Grupo> grupoItems) {
+    public CustomListAdapter(Activity activity, List<Group> grupoItems) {
         this.activity = activity;
         this.grupoItems = grupoItems;
     }
@@ -58,11 +58,11 @@ public class CustomListAdapter extends BaseAdapter {
                 .findViewById(R.id.thumbnail);
         TextView nome = (TextView) convertView.findViewById(R.id.nome_grupo);
         TextView descricao = (TextView) convertView.findViewById(R.id.descricao);
-        TextView admin = (TextView) convertView.findViewById(R.id.admin);
+        //TextView admin = (TextView) convertView.findViewById(R.id.admin);
         TextView id = (TextView) convertView.findViewById(R.id.id_grupo);
  
         // getting grupo data for the row
-        Grupo g = grupoItems.get(position);
+        Group g = grupoItems.get(position);
  
         // thumbnail image
         thumbNail.setImageUrl(g.getFoto_patch(), imageLoader);
@@ -72,9 +72,6 @@ public class CustomListAdapter extends BaseAdapter {
          
         // Descrição
         descricao.setText(g.getDescricao());
-        
-        // admin
-        admin.setText(g.getAdmin().getEmail());
          
         // Id
         id.setText(String.valueOf(g.getId()));

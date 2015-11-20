@@ -2,10 +2,10 @@ package com.followme;
 
 import com.followme.adapter.CustomListAdapter;
 import com.followme.library.SendPositionSingleton;
-import com.followme.model.Grupo;
+import com.followme.model.Group;
 import com.followme.model.Usuario;
 import com.followme.model.DAO.UsuarioDAO;
-import com.followme.model.proxy.GrupoProxy;
+import com.followme.model.web.GroupWeb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
  
     // Grupos json url
     private ProgressDialog pDialog;
-    private List<Grupo> grupoList = new ArrayList<Grupo>();
+    private List<Group> grupoList = new ArrayList<Group>();
     private ListView listView;
     private CustomListAdapter adapter;
     
@@ -147,7 +147,7 @@ public class MainActivity extends Activity {
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			return GrupoProxy.getGrupos(id_logado);
+			return GroupWeb.getGroups(id_logado);
 		}
 
 		protected void onPostExecute(String result) {
@@ -160,14 +160,11 @@ public class MainActivity extends Activity {
 	            // Parsing json
 	            for (int i = 0; i < jArray.length(); i++) {
 	                JSONObject obj = jArray.getJSONObject(i);
-	                Usuario admin = new Usuario();
-	                admin.setId(obj.getInt("admin"));
-	                admin.setEmail(obj.getString("email"));
 	                
-	                Grupo grupo = new Grupo(obj.getInt("id_grupo"), obj.getString("nome_grupo"), obj.getString("descricao"), obj.getString("foto_patch"), admin);
+	                Group group = new Group(obj.getInt("idGroup"), obj.getString("group_name"), obj.getString("description"), obj.getString("photo-patch"));
 	
 	                // adding grupo to grupos array
-	                grupoList.add(grupo);
+	                grupoList.add(group);
 	            }
             } catch (JSONException e) {
                 e.printStackTrace();

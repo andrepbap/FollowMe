@@ -14,7 +14,7 @@ import com.followme.library.HttpConnection;
 import com.followme.library.MarkerList;
 import com.followme.library.RoundedImageView;
 import com.followme.model.DAO.UsuarioDAO;
-import com.followme.model.proxy.UsuarioProxy;
+import com.followme.model.web.UserWeb;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -324,7 +324,7 @@ public class MapaActivity extends Activity implements
 			String api = getResources().getString(R.string.api_url);
 			String url = api + "usuario/put-posi";
 			Log.e(TAG, url);
-			return HttpConnection.getSetDataWeb(url, "send-json", params[0]);
+			return HttpConnection.getSetDataWeb(url, params[0]);
 		}
 
 		protected void onPostExecute(String result) {
@@ -370,7 +370,7 @@ public class MapaActivity extends Activity implements
 		protected String doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			
-			return UsuarioProxy.getPosicoes(Integer.parseInt(id_grupo));
+			return UserWeb.getPosicoes(Integer.parseInt(id_grupo));
 		}
 
 		protected void onPostExecute(String result) {

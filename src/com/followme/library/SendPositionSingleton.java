@@ -6,7 +6,7 @@ import java.util.TimerTask;
 import android.content.Context;
 import android.util.Log;
 
-import com.followme.model.proxy.UsuarioProxy;
+import com.followme.model.web.UserWeb;
 
 public class SendPositionSingleton {
 	
@@ -42,7 +42,7 @@ public class SendPositionSingleton {
 			
 			task0 = new TimerTask(){
 				public void run(){
-					String result = UsuarioProxy.atualizaPosicao(user, appLocationManager.getLatitude(), appLocationManager.getLongitude());
+					String result = UserWeb.atualizaPosicao(user, appLocationManager.getLatitude(), appLocationManager.getLongitude());
 					Log.e("result", result);
 				}
 			};

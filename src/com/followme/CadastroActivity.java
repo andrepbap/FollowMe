@@ -278,12 +278,12 @@ public class CadastroActivity extends Activity {
 		motorista.setNome(txtNome.getText().toString());
 		motorista.setEmail(txtEmail.getText().toString());
 		motorista.setSenha(Encrypt.sha1Hash(txtSenha.getText().toString()));
-		motorista.setNascimento(dataNasc);
+		motorista.setBirth(dataNasc);
 		motorista.setLogado(1);
 
 
 		//gera o json
-		String json = geraJSON(motorista.getNome(), motorista.getNascimento(), motorista.getEmail(), motorista.getSenha());
+		String json = geraJSON(motorista.getNome(), motorista.getBirth(), motorista.getEmail(), motorista.getSenha());
 
 		progress.setVisibility(View.VISIBLE);
 		
@@ -331,7 +331,7 @@ public class CadastroActivity extends Activity {
 		@Override
 		protected String doInBackground(String... params) {
 			
-			return HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/motorista/post", "send-json", params[0]);
+			return HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/motorista/post", params[0]);
 		}
 
 		protected void onPostExecute(String result) {

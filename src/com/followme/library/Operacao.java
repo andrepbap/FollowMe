@@ -61,7 +61,7 @@ public class Operacao extends AsyncTask<Void, Void, Void> {
 		{
 			//>>caminho
 			//pasta/modulo/controller/action
-			String resposta = HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/grupo/getbynome","send-json", j);//servidor remoto;
+			String resposta = HttpConnection.getSetDataWeb("http://186.202.184.109/tcc2014/sistema/api/grupo/getbynome", j);//servidor remoto;
 			Log.e("Script",resposta);
 			try {
 				JSONObject jObj = new JSONObject(resposta);

@@ -60,7 +60,7 @@ public class UsuarioDAO extends Bd{
        	
        	values.put(ID_USUARIO, usuario.getId());	
        	values.put(NOME_USUARIO, usuario.getNome());	
-		values.put(NASCIMENTO_USUARIO, usuario.getNascimento());
+		values.put(NASCIMENTO_USUARIO, usuario.getBirth());
 		values.put(EMAIL_USUARIO, usuario.getEmail());
 		values.put(SENHA_USUARIO, usuario.getSenha());
 		values.put(LOGADO_USUARIO, usuario.getLogado());

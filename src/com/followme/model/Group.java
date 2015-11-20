@@ -1,19 +1,17 @@
 package com.followme.model;
 
-public class Grupo {
+public class Group {
 	private int id;
 	private String nome, descricao, foto_patch;
-	private Usuario admin;
  
-    public Grupo() {
+    public Group() {
     }
 
-	public Grupo(int id, String nome, String descricao, String foto_patch, Usuario admin) {
+	public Group(int id, String nome, String descricao, String foto_patch) {
     	this.id = id;
         this.nome = nome;
         this.descricao = descricao;
         this.foto_patch = foto_patch;
-        this.admin = admin;
     }
 
 	public String getNome() {
@@ -38,14 +36,6 @@ public class Grupo {
 
 	public void setFoto_patch(String foto_patch) {
 		this.foto_patch = foto_patch;
-	}
-
-	public Usuario getAdmin() {
-		return admin;
-	}
-
-	public void setAdmin(Usuario admin) {
-		this.admin = admin;
 	}
  
 	 public int getId() {

@@ -2,6 +2,7 @@ package com.followme;
 
 import com.followme.entity.Group;
 import com.followme.list.GroupListAdapter;
+import com.followme.model.AppSettings;
 import com.followme.model.UsuarioDAO;
 import com.followme.model.web.UserWeb;
 import com.followme.utils.location.SendPositionSingleton;
@@ -61,8 +62,11 @@ public class MainActivity extends Activity {
 			bd.close();
 			
 			//start send position thread
-//			SendPositionSingleton.getInstance(getApplicationContext()).setUser(id_logado);
-//			SendPositionSingleton.getInstance(getApplicationContext()).start();
+			if(AppSettings.isOffMapSending(getApplicationContext())){
+				SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
+				sps.setUser(id_logado);
+				sps.setPeriod(AppSettings.getAppOffMapSendRate(getApplicationContext()));
+			}
 	        
 	        listView = (ListView) findViewById(R.id.list);
 	        adapter = new GroupListAdapter(this, grupoList);

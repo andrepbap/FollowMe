@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
+import com.followme.model.AppSettings;
 import com.followme.model.UsuarioDAO;
 import com.followme.model.web.GroupWeb;
 import com.followme.model.web.UserWeb;
@@ -167,18 +168,17 @@ public class MapaActivity extends Activity implements
 		}
 
 	}
-
-	/*
-	 * Called when the Activity is no longer visible.
-	 */
+	
 	@Override
-	protected void onStop() {
+	public void onDestroy() {
 		// Disconnecting the client invalidates it.
 		mLocationClient.disconnect();
 		if(timer != null){
 			timer.cancel();
 			timer = null;
 		}
+		SendPositionSingleton.getInstance(getApplicationContext())
+			.setPeriod(AppSettings.getAppOffMapSendRate(getApplicationContext()));
 		super.onStop();
 	}
 
@@ -247,7 +247,7 @@ public class MapaActivity extends Activity implements
 				new GetUsersLocationAsyncTask().execute();
 			}
 		};
-        timer.schedule(task0, 0, 5000);
+        timer.schedule(task0, 0, AppSettings.getAppMapSendRate(getApplicationContext()));
 	}
 
 	private void iniciaTrajeto(int id_grupo) {
@@ -256,7 +256,8 @@ public class MapaActivity extends Activity implements
 
 			listUsuarios = new MarkerList();
 			getUsersLocationTask();
-			SendPositionSingleton.getInstance(getApplicationContext()).setPeriod(5000);
+			SendPositionSingleton.getInstance(getApplicationContext())
+				.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
 
 		} else {
 			Toast.makeText(

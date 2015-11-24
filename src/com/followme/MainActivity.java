@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
     // Log tag
     private static final String TAG = MainActivity.class.getSimpleName();
  
-    // Grupos json url
+    // Group parameters
     private ProgressDialog pDialog;
     private List<Group> grupoList = new ArrayList<Group>();
     private ListView listView;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        // verifica login
+        // verify login
 		bd = new UsuarioDAO(getApplicationContext());
 		bd.open();
 		if (bd.getUsuario() == null) {
@@ -61,11 +61,12 @@ public class MainActivity extends Activity {
 			id_logado = bd.getUsuario().getId();
 			bd.close();
 			
-			//start send position thread
+			//start send position singleton
+			SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
+			sps.setUser(id_logado);
+			sps.setPeriod(AppSettings.getAppOffMapSendRate(getApplicationContext()));
 			if(AppSettings.isOffMapSending(getApplicationContext())){
-				SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
-				sps.setUser(id_logado);
-				sps.setPeriod(AppSettings.getAppOffMapSendRate(getApplicationContext()));
+				sps.start();
 			}
 	        
 	        listView = (ListView) findViewById(R.id.list);
@@ -91,11 +92,8 @@ public class MainActivity extends Activity {
 	            	String idGroup = Integer.toString(group.getId());
 	            	String gorupName = group.getNome();
 
-//	            	TextView id_grupo = (TextView) view.findViewById(R.id.id_grupo);
-//	            	TextView nome = (TextView) view.findViewById(R.id.nome_grupo);
-
 	            	Intent it = new Intent(MainActivity.this, MapaActivity.class);
-	    			it.putExtra("id_grupo", idGroup);
+	    			it.putExtra("idGroup", idGroup);
 	    			it.putExtra("nome_grupo", gorupName);
 	    			startActivity(it);
 	            }
@@ -127,7 +125,6 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.main_logoff:
-				logoff();
 				break;
 			case R.id.menu_settings:
 				Intent itSetting = new Intent(this, SettingActivity.class);
@@ -136,15 +133,6 @@ public class MainActivity extends Activity {
 		}
 		return true;
 	}
-    
-    private void logoff(){
-    	bd.open();
-		bd.logoffUsuario();
-		bd.close();
-
-		Intent itLogoff = new Intent(this, LoginActivity.class);
-		startActivity(itLogoff);
-    }
     
     private class GetGruposAsyncTask extends AsyncTask<String, Void, String> {
 
@@ -166,7 +154,10 @@ public class MainActivity extends Activity {
 	            for (int i = 0; i < jArray.length(); i++) {
 	                JSONObject obj = jArray.getJSONObject(i);
 	                
-	                Group group = new Group(obj.getInt("idGroup"), obj.getString("group_name"), obj.getString("description"), obj.getString("photo-patch"));
+	                Group group = new Group(obj.getInt("idGroup"), 
+	                		obj.getString("group_name"), 
+	                		obj.getString("description"), 
+	                		obj.getString("photo-patch"));
 	
 	                // adding grupo to grupos array
 	                grupoList.add(group);

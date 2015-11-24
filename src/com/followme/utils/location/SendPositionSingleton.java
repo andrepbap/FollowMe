@@ -65,9 +65,12 @@ public class SendPositionSingleton {
 	
 	public void setPeriod(long period){
 		if(period > 0){
+			boolean status = this.getTimerStatus();
 			this.stop();
 			this.period = period;
-			this.start();
+			if(status){
+				this.start();
+			}
 		}
 	}
 	

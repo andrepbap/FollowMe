@@ -3,8 +3,6 @@ package com.followme;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,10 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
 import com.followme.model.AppSettings;
-import com.followme.model.UsuarioDAO;
 import com.followme.model.web.GroupWeb;
-import com.followme.model.web.UserWeb;
-import com.followme.utils.HttpConnection;
 import com.followme.utils.MarkerList;
 import com.followme.utils.RoundedImageView;
 import com.followme.utils.location.SendPositionSingleton;
@@ -40,13 +35,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,7 +54,7 @@ public class MapaActivity extends Activity implements
 	// Log tag
     private static final String TAG = MapaActivity.class.getSimpleName();
     
-	// imagens
+	// images
 	private Handler handler = new Handler();
 
 	// location
@@ -70,18 +63,14 @@ public class MapaActivity extends Activity implements
 	private TimerTask task0;
 	private Timer timer;
 
-	// bd
-	private UsuarioDAO bd;
-
-	// mapa
+	// map
 	private GoogleMap map;
 
-	// trajeto
-	private MarkerList listUsuarios;
-	private int id_logado;
+	// utilities
+	private MarkerList usersList;
 
-	//parametros
-	private String id_grupo, nome_grupo = null;
+	// parameters
+	private String idGroup, nome_grupo = null;
 	private Boolean atualizaTela = true;
 
 	/*
@@ -90,52 +79,24 @@ public class MapaActivity extends Activity implements
 	 */
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-	// Define a DialogFragment that displays the error dialog
-	public static class ErrorDialogFragment extends DialogFragment {
-
-		// Global field to contain the error dialog
-		private Dialog mDialog;
-
-		// Default constructor. Sets the dialog field to null
-		public ErrorDialogFragment() {
-			super();
-			mDialog = null;
-		}
-
-		// Set the dialog to display
-		public void setDialog(Dialog dialog) {
-			mDialog = dialog;
-		}
-
-		// Return a Dialog to the DialogFragment.
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return mDialog;
-		}
-	}
-
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_mapa);
 
+		// set screen on
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		mLocationClient = new LocationClient(this, this, this);
 
-		//find user
-		bd = new UsuarioDAO(getApplicationContext());
-		bd.open();
-		id_logado = bd.getUsuario().getId();
-		bd.close();
-
+		// get activity parameters
 		try {
 			Intent it = getIntent();
 
-			String id_grupo = it.getStringExtra("id_grupo");
+			String idGroup = it.getStringExtra("idGroup");
 			String nome_grupo = it.getStringExtra("nome_grupo");
-			this.id_grupo = id_grupo;
+			this.idGroup = idGroup;
 			this.nome_grupo = nome_grupo;
 			getActionBar().setTitle(this.nome_grupo); 
 
@@ -143,22 +104,30 @@ public class MapaActivity extends Activity implements
 			Log.e("Script", "erro");
 		}
 
-		// inicialização do mapa
+		// Initialize map 
 		map = ((MapFragment) getFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
-
 		map.setMyLocationEnabled(true);
 		map.setTrafficEnabled(true);
 
-		if (id_grupo != null) {
-			iniciaTrajeto(Integer.parseInt(id_grupo));
-			Toast.makeText(getBaseContext(), nome_grupo + " carregado!", Toast.LENGTH_SHORT).show();
-		}
+		// initialize engine
+		initializeEngine();
+	}
+	
+	@Override
+	public void onResume(){
+		//restart timer
+		if(timer != null){
+			timer.cancel();
+			timer = null;
+		} 
+		getUsersLocationTask();
+		
+		SendPositionSingleton.getInstance(getApplicationContext())
+			.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
+		super.onResume();
 	}
 
-	/*
-	 * Called when the Activity becomes visible.
-	 */
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -186,7 +155,6 @@ public class MapaActivity extends Activity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
-
 		return true;
 	}
 
@@ -203,6 +171,10 @@ public class MapaActivity extends Activity implements
 
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private boolean isGooglePlayServicesAvailable() {
 		// Check that Google Play services is available
 		int resultCode = GooglePlayServicesUtil
@@ -221,7 +193,32 @@ public class MapaActivity extends Activity implements
 
 	}
 	
-	private boolean Conectado(Context context) {
+	/**
+	 * 
+	 */
+	private void initializeEngine() {
+		if (isConnected(getApplicationContext()) == true) {
+			
+			map.setOnMyLocationChangeListener(this);
+			usersList = new MarkerList();
+			getUsersLocationTask();
+			SendPositionSingleton.getInstance(getApplicationContext())
+				.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
+
+		} else {
+			Toast.makeText(
+					getBaseContext(),
+					"Verifique sua conexão com a internet.",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param context
+	 * @return
+	 */
+	private boolean isConnected(Context context) {
 		try {
 			ConnectivityManager cm = (ConnectivityManager) context
 					.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -239,9 +236,11 @@ public class MapaActivity extends Activity implements
 		}
 	}
 	
+	/**
+	 * Initialize thread to get users position.
+	 */
 	private void getUsersLocationTask(){
 		timer = new Timer();
-		
 		task0 = new TimerTask(){
 			public void run(){
 				new GetUsersLocationAsyncTask().execute();
@@ -250,25 +249,15 @@ public class MapaActivity extends Activity implements
         timer.schedule(task0, 0, AppSettings.getAppMapSendRate(getApplicationContext()));
 	}
 
-	private void iniciaTrajeto(int id_grupo) {
-		if (Conectado(getApplicationContext()) == true) {
-			map.setOnMyLocationChangeListener(this);
-
-			listUsuarios = new MarkerList();
-			getUsersLocationTask();
-			SendPositionSingleton.getInstance(getApplicationContext())
-				.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
-
-		} else {
-			Toast.makeText(
-					getBaseContext(),
-					"Erro ao iniciar o grupo. Verifique sua conexão e tente novamente.",
-					Toast.LENGTH_SHORT).show();
-		}
-	}
-
+	/**
+	 * Assemble users markers with pin icon and their photos.
+	 * @param patch
+	 * @param icon
+	 * @param userId
+	 * @param latitude
+	 * @param longitude
+	 */
 	private void loadMarker(String patch, Bitmap icon, int userId, double latitude, double longitude) {
-		
 		final String param = patch;
 		final int id = userId;
 		final Bitmap newIcon = icon;
@@ -295,7 +284,7 @@ public class MapaActivity extends Activity implements
 									.icon(BitmapDescriptorFactory
 											.fromBitmap(markerIcon)));						
 							
-							listUsuarios.add(id,marker);
+							usersList.add(id,marker);
 						}
 					});
 				} catch (Exception e2) {
@@ -309,8 +298,7 @@ public class MapaActivity extends Activity implements
 
 		@Override
 		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-			return GroupWeb.getUsersLocation(Integer.parseInt(id_grupo));
+			return GroupWeb.getUsersLocation(Integer.parseInt(idGroup));
 		}
 
 		protected void onPostExecute(String result) {
@@ -323,8 +311,8 @@ public class MapaActivity extends Activity implements
 					JSONObject obj = jArray.getJSONObject(i);
 
 					try {
-						if (listUsuarios.contains(obj.getInt("idUser"))) {
-							listUsuarios
+						if (usersList.contains(obj.getInt("idUser"))) {
+							usersList
 								.get(obj.getInt("idUser"))
 								.setPosition( new LatLng(obj.getDouble("latitude"),obj.getDouble("longitude")));
 						} else {
@@ -354,14 +342,13 @@ public class MapaActivity extends Activity implements
 							}
 
 							Bitmap imgMarker = BitmapFactory.decodeResource(getResources(), color);
-
 							loadMarker(obj.getString("photo_patch"), imgMarker, obj.getInt("idUser"), obj.getDouble("latitude"),obj.getDouble("longitude"));
 							Log.e(TAG, "marcador criado");
 						}
 
-						Log.e("recebimento", "ok!");
+						Log.e(TAG, "user data received");
 					} catch (Exception e2) {
-						Log.e("position", e2.getMessage());
+						Log.e(TAG, e2.getMessage());
 					}
 				}
 
@@ -404,7 +391,7 @@ public class MapaActivity extends Activity implements
 	@Override
 	public void onConnected(Bundle dataBundle) {
 		// Display the connection status
-		Log.e("location", "conectado");
+		Log.e(TAG, "location services connected");
 		Location location = mLocationClient.getLastLocation();
 		LatLng latLng = new LatLng(location.getLatitude(),
 				location.getLongitude());

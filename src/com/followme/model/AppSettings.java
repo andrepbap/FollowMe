@@ -13,9 +13,10 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.Log;
-import android.widget.Toast;
 
 public class AppSettings {
+	
+	private static final String TAG = AppSettings.class.getSimpleName();
 
 	private static JSONObject readSettings(Context cx) {
 		String FILENAME = "settings";
@@ -36,18 +37,15 @@ public class AppSettings {
 			settings = sb.toString();
 			fis.close();
 			JSONObject jSettings =  new JSONObject(settings);
-			Log.e("read file", jSettings.toString());
+			Log.e(TAG, jSettings.toString());
 			return jSettings;
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		}
 		return null;
 	}
@@ -64,14 +62,12 @@ public class AppSettings {
 			fos.write(settings.toString().getBytes());
 			fos.close();
 			
-			Log.e("settings store file", "file saved");
+			Log.e(TAG, "file saved");
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		}
 	}
 
@@ -80,81 +76,81 @@ public class AppSettings {
 			JSONObject jSettings = readSettings(cx);
 			return jSettings.getBoolean("OffMapSending");
 		} catch (JSONException e) {
-			//default value
-			return true;			
+			Log.e(TAG, e.getMessage());
 		} catch (NullPointerException e) {
-			//default value
-			return true;
+			Log.e(TAG, e.getMessage());
 		}
+		
+		//default value
+		return true;
 	}
 
 	public static void setOffMapSending(boolean offMapSending, Context cx) {
-		try {
-			JSONObject jSettings = readSettings(cx);
-			jSettings.put("OffMapSending", offMapSending);
-			storeSettings(jSettings, cx);
-		} catch (JSONException e) {
-			Toast.makeText(
-					cx,
-					"Erro ao guardar configuração: OffMapSending",
-					Toast.LENGTH_SHORT).show();
-		} catch (NullPointerException e) {
-			
+		JSONObject jSettings = readSettings(cx);
+		if(jSettings == null){
+			jSettings = new JSONObject();
 		}
+		
+		try {
+			jSettings.put("OffMapSending", offMapSending);
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		storeSettings(jSettings, cx);
 	}
 
 	public static long getAppOffMapSendRate(Context cx) {
 		try {
 			JSONObject jSettings = readSettings(cx);
-			return jSettings.getLong("AppOffMapSendRate");
+			return jSettings.getLong("appOffMapSendRate");
 		} catch (JSONException e) {
-			//default value
-			return 600000;
+			Log.e(TAG, e.getMessage());
 		} catch (NullPointerException e) {
-			//default value
-			return 600000;
+			Log.e(TAG, e.getMessage());
 		}
+		//default value
+		return 600000;
 	}
 
 	public static void setAppOffMapSendRate(long appOffMapSendRate, Context cx) {
+		JSONObject jSettings = readSettings(cx);
+		if(jSettings == null){
+			jSettings = new JSONObject();
+		}
+		
 		try {
-			JSONObject jSettings = readSettings(cx);
 			jSettings.put("appOffMapSendRate", appOffMapSendRate);
-			storeSettings(jSettings, cx);
 		} catch (JSONException e) {
-			Toast.makeText(
-					cx,
-					"Erro ao guardar configuração: appOffMapSendRate",
-					Toast.LENGTH_SHORT).show();
-		} 
+			Log.e(TAG, e.getMessage());
+		}
+		storeSettings(jSettings, cx);
 	}
 
 	public static long getAppMapSendRate(Context cx) {
 		try {
 			JSONObject jSettings = readSettings(cx);
-			return jSettings.getLong("AppMapSendRate");
+			return jSettings.getLong("appMapSendRate");
 		} catch (JSONException e) {
-			//default value
-			return 5000;
+			Log.e(TAG, e.getMessage());
 		} catch (NullPointerException e) {
-			//default value
-			return 5000;
+			Log.e(TAG, e.getMessage());
 		}
+		//default value
+		return 5000;
 	}
 
 	public static void setAppMapSendRate(long appMapSendRate, Context cx) {
-		try {
-			JSONObject jSettings = readSettings(cx);
-			jSettings.put("appMapSendRate", appMapSendRate);
-			storeSettings(jSettings, cx);
-		} catch (JSONException e) {
-			Toast.makeText(
-					cx,
-					"Erro ao guardar configuração: appMapSendRate",
-					Toast.LENGTH_SHORT).show();
-		} catch (NullPointerException e) {
-			
+		JSONObject jSettings = readSettings(cx);
+		if(jSettings == null){
+			jSettings = new JSONObject();
 		}
+		
+		try {
+			jSettings.put("appMapSendRate", appMapSendRate);
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		storeSettings(jSettings, cx);
 	}
 
 }

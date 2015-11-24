@@ -7,7 +7,7 @@ import com.followme.utils.encryption.ApiCrypter;
 public class ServerParams {
 
 	private final static String API_KEY = "7e35364adb5f775ac67215bd417b5945ceeeec8b";
-	private final static String API_URL = "http://192.168.2.110:8080/api/";
+	private final static String API_URL = "http://192.168.2.111:8080/api/";
 	
 	public static String getEncryptedApiKey() {
 		long unixTime = System.currentTimeMillis() / 1000L;

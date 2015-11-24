@@ -31,7 +31,7 @@ public abstract class UserWeb {
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
-	public static String atualizaPosicao(int idUser, String latitude, String longitude) {
+	public static String atualizaPosicao(int idUser, Double latitude, Double longitude) {
 		String url = ServerParams.getApiUrl() + "user/" + idUser + "/set-position";
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -7,8 +7,8 @@ import android.os.Bundle;
 public class AppLocationManager implements LocationListener {
 
     private LocationManager locationManager;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
     private Criteria criteria;
     private String provider;
 
@@ -25,14 +25,15 @@ public class AppLocationManager implements LocationListener {
     }
 
     private void setMostRecentLocation(Location lastKnownLocation) {
-
+    	this.latitude = lastKnownLocation.getLatitude();
+    	this.longitude = lastKnownLocation.getLongitude();
     }
 
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
@@ -45,12 +46,8 @@ public class AppLocationManager implements LocationListener {
      */
     @Override
     public void onLocationChanged(Location location) {
-        double lon = (double) (location.getLongitude());/// * 1E6);
-        double lat = (double) (location.getLatitude());// * 1E6);
-
-        latitude = lat + "";
-        longitude = lon + "";
-
+        this.latitude = location.getLongitude();/// * 1E6);
+        this.longitude = location.getLatitude();// * 1E6);
     }
 
     /*

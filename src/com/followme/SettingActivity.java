@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.followme.model.AppSettings;
+import com.followme.utils.location.SendPositionSingleton;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -55,7 +56,6 @@ public class SettingActivity extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
-				// TODO Auto-generated method stub
 				refresh = isChecked;
 			}
 		});
@@ -124,9 +124,20 @@ public class SettingActivity extends Activity {
 
 	@Override
 	public void onDestroy() {
+		//save settings
 		AppSettings.setAppOffMapSendRate(period.value, getApplicationContext());
 		AppSettings.setOffMapSending(refresh, getApplicationContext());
 		AppSettings.setAppMapSendRate(mapPeriod.value, getApplicationContext());
+		
+		//change settings
+		SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
+		sps.setPeriod(period.value);
+		if(refresh){
+			sps.start();
+		} else {
+			sps.stop();
+		}
+		
 		super.onDestroy();
 	}
 

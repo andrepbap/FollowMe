@@ -1,15 +1,11 @@
 package com.followme;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
-import com.followme.entity.Usuario;
-import com.followme.model.UsuarioDAO;
+import com.followme.entity.User;
+import com.followme.model.UserDAO;
 import com.followme.model.web.UserWeb;
-import com.followme.utils.HttpConnection;
-import com.followme.utils.Json;
 import com.followme.utils.encryption.Encrypt;
 
 import android.app.Activity;
@@ -38,8 +34,8 @@ public class LoginActivity extends Activity {
 		progress.setVisibility(View.INVISIBLE);
 	}
 
-	public void cadastrar(View v) {
-		Intent it = new Intent(this, CadastroActivity.class);
+	public void register(View v) {
+		Intent it = new Intent(this, RegisterActivity.class);
 		startActivity(it);
 	}
 
@@ -79,17 +75,16 @@ public class LoginActivity extends Activity {
 
 		protected void onPostExecute(String result) {
 			Log.e(TAG, result);
-			UsuarioDAO bd = new UsuarioDAO(getApplicationContext());
+			UserDAO bd = new UserDAO(getApplicationContext());
 
 			try {
 				JSONObject json = new JSONObject(result);
 
 				try {
 
-					Usuario usuario = new Usuario(Integer.parseInt(json
+					User usuario = new User(Integer.parseInt(json
 							.getString("idUser")), 
 							json.getString("userName"),
-							json.getString("birth"),
 							json.getString("email"),
 							json.getString("password"), 1);
 

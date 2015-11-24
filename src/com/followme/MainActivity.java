@@ -3,7 +3,7 @@ package com.followme;
 import com.followme.entity.Group;
 import com.followme.list.GroupListAdapter;
 import com.followme.model.AppSettings;
-import com.followme.model.UsuarioDAO;
+import com.followme.model.UserDAO;
 import com.followme.model.web.UserWeb;
 import com.followme.utils.location.SendPositionSingleton;
 
@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
     private GroupListAdapter adapter;
     
     //Data base
-    private UsuarioDAO bd;
+    private UserDAO bd;
     private int id_logado;
  
     @Override
@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         // verify login
-		bd = new UsuarioDAO(getApplicationContext());
+		bd = new UserDAO(getApplicationContext());
 		bd.open();
 		if (bd.getUsuario() == null) {
 			bd.close();

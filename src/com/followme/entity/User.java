@@ -1,33 +1,29 @@
 package com.followme.entity;
 
-public class Usuario {
+public class User {
 
 	private int id;
 	private String nome;
-	private String birth;
 	private String email;
 	private String senha;
 	private String url;
 	private String autorizado;
 	private int logado;
 
-	public Usuario() {
+	public User() {
 		super();
 	}
 	
-	public Usuario(int id, String nome, String birth, String email,
-			String senha, int logado) {
+	public User(int id, String nome, String email, String senha, int logado) {
 		super();
 		this.id = id;
 		this.nome = nome;
-		this.birth = birth;
 		this.email = email;
 		this.senha = senha;
 		this.logado = logado;
 	}
 
-	public Usuario(int id, String url, String autorizado, String nome,
-			String nascimento, String email, String senha, int logado) {
+	public User(int id, String url, String autorizado, String nome, String email, String senha, int logado) {
 		super();
 		this.id = id;
 		this.url = url;
@@ -37,14 +33,6 @@ public class Usuario {
 		this.senha = senha;
 		this.logado = logado;
 
-	}
-	
-	public String getBirth() {
-		return birth;
-	}
-
-	public void setBirth(String birth) {
-		this.birth = birth;
 	}
 
 	public String getAutorizado() {

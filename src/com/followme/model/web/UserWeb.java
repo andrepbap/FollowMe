@@ -6,6 +6,7 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.followme.LoginActivity;
 import com.followme.utils.HttpConnection;
 
 import android.util.Log;
@@ -13,6 +14,8 @@ import android.util.Log;
 public abstract class UserWeb {
 
 	private static JSONObject jo;
+	
+	private static final String TAG = UserWeb.class.getSimpleName();
 	
 	public static String login(String email, String password){
 		String url = ServerParams.getApiUrl() + "user/login";
@@ -25,7 +28,7 @@ public abstract class UserWeb {
 			jo.put("password", password);
 
 		} catch (JSONException e1) {
-			Log.e("Script", "erro Json");
+			Log.e(TAG, "login error");
 		}
 
 		return HttpConnection.getSetDataWeb(url, jo.toString());
@@ -45,7 +48,7 @@ public abstract class UserWeb {
 			jo.put("date", currentDateandTime);
 
 		} catch (JSONException e1) {
-			Log.e("Script", "erro atualizaPosicao");
+			Log.e(TAG, "refresh position error");
 		}
 
 		return HttpConnection.getSetDataWeb(url, jo.toString());
@@ -59,11 +62,27 @@ public abstract class UserWeb {
 			jo.put("apiKey", ServerParams.getEncryptedApiKey());
 
 		} catch (JSONException e1) {
-			Log.e("Script", "erro Json");
+			Log.e(TAG, "get groups error");
 		}
 		
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
+	public static String register(String name, String email, String password) {
+		String url = ServerParams.getApiUrl() + "user/save";
+		
+		jo = new JSONObject();
+		try {
+			jo.put("apiKey", ServerParams.getEncryptedApiKey());
+			jo.put("userName", name);
+			jo.put("email", email);
+			jo.put("password", password);
+
+		} catch (JSONException e1) {
+			Log.e(TAG, "register error");
+		}
+
+		return HttpConnection.getSetDataWeb(url, jo.toString());
+	}
 	
 }

@@ -6,23 +6,23 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.followme.entity.Usuario;
+import com.followme.entity.User;
 
-public class UsuarioDAO extends Bd{
+public class UserDAO extends Bd{
 	
-	public UsuarioDAO(Context ctx)
+	public UserDAO(Context ctx)
 	{
 		super(ctx);
 	}
 	
 	// Getting
-    public Usuario getUsuario(int id) {
+    public User getUsuario(int id) {
  	    SQLiteDatabase db = mDbHelper.getWritableDatabase();
  	    Cursor cursor = db.query(TABELA_USUARIO, null, ID_USUARIO + "=?", new String[] { String.valueOf(id) }, null, null, null);
 
 	    try{
 	 	    cursor.moveToFirst();
-		    Usuario usuario = new Usuario(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4), cursor.getInt(5));
+		    User usuario = new User(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getInt(4));
 		    
 		    db.close();
 	        return usuario;
@@ -32,13 +32,13 @@ public class UsuarioDAO extends Bd{
 	    }
      }
     
-    public Usuario getUsuario() {
+    public User getUsuario() {
  	    SQLiteDatabase db = mDbHelper.getWritableDatabase();
  	    Cursor cursor = db.query(TABELA_USUARIO, null, LOGADO_USUARIO + "=?", new String[] { "1" }, null, null, null);
 
 	    try{
 	 	    cursor.moveToFirst();
-		    Usuario usuario = new Usuario(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4), cursor.getInt(5));
+		    User usuario = new User(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3), cursor.getInt(4));
 		    
 		    db.close();
 	        return usuario;
@@ -48,10 +48,10 @@ public class UsuarioDAO extends Bd{
 	    }
      }
     
-    public void gravaUsuario(Usuario usuario) {
+    public void gravaUsuario(User usuario) {
 		// Verifica se descricao existe no cadastro
     	
- 		Usuario usuarioAux;
+ 		User usuarioAux;
  		usuarioAux = getUsuario(usuario.getId()); 
 		
 		// processa dados
@@ -60,7 +60,6 @@ public class UsuarioDAO extends Bd{
        	
        	values.put(ID_USUARIO, usuario.getId());	
        	values.put(NOME_USUARIO, usuario.getNome());	
-		values.put(NASCIMENTO_USUARIO, usuario.getBirth());
 		values.put(EMAIL_USUARIO, usuario.getEmail());
 		values.put(SENHA_USUARIO, usuario.getSenha());
 		values.put(LOGADO_USUARIO, usuario.getLogado());

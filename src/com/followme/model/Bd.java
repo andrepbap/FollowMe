@@ -15,7 +15,6 @@ public class Bd {
 	// campos da tabela
 	public static final String ID_USUARIO = "id";
 	public static final String NOME_USUARIO = "nome";   
-	public static final String NASCIMENTO_USUARIO = "nascimento";  	
 	public static final String EMAIL_USUARIO = "email";
 	public static final String SENHA_USUARIO = "senha";
 	public static final String LOGADO_USUARIO = "logado"; 
@@ -29,7 +28,6 @@ public class Bd {
 			+ TABELA_USUARIO + "  (" +
 										ID_USUARIO + " INTEGER NOT NULL PRIMARY KEY," +
 										NOME_USUARIO + " TEXT NOT NULL, " +
-										NASCIMENTO_USUARIO + " TEXT NOT NULL,"+
 										EMAIL_USUARIO + " TEXT NOT NULL,"+
 										SENHA_USUARIO + " TEXT NOT NULL,"+
 										LOGADO_USUARIO + " BOOLEAN NOT NULL"+
@@ -113,7 +111,6 @@ public class Bd {
 			{
 				db.execSQL("INSERT INTO "+ TABELA_USUARIO + " SELECT " +	ID_USUARIO + "," + 
 									NOME_USUARIO + "," +
-									NASCIMENTO_USUARIO + "," +
 									EMAIL_USUARIO + "," +
 									SENHA_USUARIO + "," +
 									LOGADO_USUARIO +

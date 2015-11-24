@@ -92,7 +92,8 @@
             android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
-            android:name="com.followme.CadastroActivity"
+            android:name="com.followme.RegisterActivity"
+            android:icon="@drawable/ic_menu_back"
             android:label="@string/titulo_cadastro" 
             android:windowSoftInputMode="stateHidden">
         </activity>

@@ -19,8 +19,8 @@ import android.widget.Toast;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.Cursor;
 
-import com.followme.entity.Usuario;
-import com.followme.model.UsuarioDAO;
+import com.followme.entity.User;
+import com.followme.model.UserDAO;
 import com.followme.utils.HttpConnection;
 import com.followme.utils.encryption.Encrypt;
 
@@ -38,15 +38,15 @@ public class EdicaoActivity extends Activity {
 
 	Button btnSalvar, btnVoltar;
 	
-	private UsuarioDAO bd;
-	private Usuario motorista;
+	private UserDAO bd;
+	private User motorista;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edicao);
 
-		bd = new UsuarioDAO(getApplicationContext());
+		bd = new UserDAO(getApplicationContext());
 				
 		inicializaComponentes();
 
@@ -234,13 +234,11 @@ public class EdicaoActivity extends Activity {
 		motorista.setEmail(txtEmail.getText().toString());
 		
 		
-		// gera o json
-		String json = geraJSON(motorista.getId(), motorista.getNome(), motorista.getBirth(), motorista.getEmail(), motorista.getSenha(), Encrypt.sha1Hash(txtSenhaAtual.getText().toString()));
 
 		progress.setVisibility(View.VISIBLE);
 		
 		//executa a thread
-		new ReadJsonAsyncTask().execute(json);
+		//new ReadJsonAsyncTask().execute(json);
 		
 
 	}
@@ -289,7 +287,7 @@ public class EdicaoActivity extends Activity {
 		}
 
 		protected void onPostExecute(String result) {
-			UsuarioDAO bd = new UsuarioDAO(getApplicationContext());
+			UserDAO bd = new UserDAO(getApplicationContext());
 
 			try {
 				JSONObject jObj = new JSONObject(result);

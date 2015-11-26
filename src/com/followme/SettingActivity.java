@@ -3,7 +3,8 @@ package com.followme;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.followme.model.AppSettings;
+import com.followme.entity.Setting;
+import com.followme.model.SettingDAO;
 import com.followme.utils.location.SendPositionSingleton;
 
 import android.app.ActionBar;
@@ -24,19 +25,26 @@ public class SettingActivity extends Activity {
 	private CheckBox refreshCB;
 	private Spinner timeSpn;
 	private Spinner timeMapSpn;
-	private boolean refresh;
-	private Period period;
-	private Period mapPeriod;
+	private boolean isOffMapSending;
+	private Period offMapPeriod;
+	private Period onMapPeriod;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
-		// initialise vars
-		refresh = AppSettings.isOffMapSending(getApplicationContext());
-		period = new Period(AppSettings.getAppOffMapSendRate(getApplicationContext()));
-		mapPeriod = new Period(AppSettings.getAppMapSendRate(getApplicationContext()));
+		//open database
+		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
+		bdInstance.open();
+		
+		// Initialize variables
+		isOffMapSending = Boolean.valueOf(bdInstance.getSetting("isOffMapSending").getValue());
+		offMapPeriod = new Period(Long.valueOf(bdInstance.getSetting("offMapSendingRate").getValue()));
+		onMapPeriod = new Period(Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue()));
+		
+		// close database
+		bdInstance.close();
 
 		ActionBar actionBar = getActionBar();
 		actionBar.setHomeButtonEnabled(true);
@@ -45,8 +53,8 @@ public class SettingActivity extends Activity {
 		timeSpn = (Spinner) findViewById(R.id.settingTimeSpinner);
 		timeMapSpn = (Spinner) findViewById(R.id.settingMapTimeSpinner);
 
-		// constroi check box
-		if (AppSettings.isOffMapSending(getApplicationContext())) {
+		// Build check box
+		if (isOffMapSending) {
 			refreshCB.setChecked(true);
 		} else {
 			refreshCB.setChecked(false);
@@ -56,13 +64,13 @@ public class SettingActivity extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
-				refresh = isChecked;
+				isOffMapSending = isChecked;
 			}
 		});
 
-		// constroi background spinner
+		// Build off map spinner
 		List<Period> options = new ArrayList<Period>();
-		options.add(period);
+		options.add(offMapPeriod);
 		options.add(new Period(3000));
 		options.add(new Period(10000));
 		options.add(new Period(30000));
@@ -79,7 +87,7 @@ public class SettingActivity extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				// TODO Auto-generated method stub
-				period = aAdapter.getItem(position);
+				offMapPeriod = aAdapter.getItem(position);
 
 				// SendPositionSingleton.getInstance(getApplicationContext()).setPeriod(selected.getValue());
 			}
@@ -91,9 +99,9 @@ public class SettingActivity extends Activity {
 			}
 		});
 
-		// constroi on map spinner
+		// Build on map spinner
 		List<Period> mapOptions = new ArrayList<Period>();
-		mapOptions.add(mapPeriod);
+		mapOptions.add(onMapPeriod);
 		mapOptions.add(new Period(3000));
 		mapOptions.add(new Period(5000));
 		mapOptions.add(new Period(10000));
@@ -109,7 +117,7 @@ public class SettingActivity extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				// TODO Auto-generated method stub
-				mapPeriod = aAdapter.getItem(position);
+				onMapPeriod = aMapAdapter.getItem(position);
 
 				// SendPositionSingleton.getInstance(getApplicationContext()).setPeriod(selected.getValue());
 			}
@@ -125,14 +133,22 @@ public class SettingActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		//save settings
-		AppSettings.setAppOffMapSendRate(period.value, getApplicationContext());
-		AppSettings.setOffMapSending(refresh, getApplicationContext());
-		AppSettings.setAppMapSendRate(mapPeriod.value, getApplicationContext());
+		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
+		
+		Setting isOffMapSending = new Setting("isOffMapSending", Boolean.toString(this.isOffMapSending));
+		Setting onMapSendingRate = new Setting("onMapSendingRate", Long.toString(onMapPeriod.value));
+		Setting offMapSendingRate = new Setting("offMapSendingRate", Long.toString(offMapPeriod.value));
+		
+		bdInstance.open();
+		bdInstance.saveSetting(isOffMapSending);
+		bdInstance.saveSetting(onMapSendingRate);
+		bdInstance.saveSetting(offMapSendingRate);
+		bdInstance.close();
 		
 		//change settings
 		SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
-		sps.setPeriod(period.value);
-		if(refresh){
+		sps.setPeriod(offMapPeriod.value);
+		if(this.isOffMapSending){
 			sps.start();
 		} else {
 			sps.stop();
@@ -145,7 +161,7 @@ public class SettingActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// app icon in action bar clicked; goto parent activity.
+			// application icon in action bar clicked; goto parent activity.
 			this.finish();
 			return true;
 		default:

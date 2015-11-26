@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
-import com.followme.model.AppSettings;
+import com.followme.model.SettingDAO;
 import com.followme.model.web.GroupWeb;
 import com.followme.utils.MarkerList;
 import com.followme.utils.RoundedImageView;
@@ -72,6 +72,10 @@ public class MapaActivity extends Activity implements
 	// parameters
 	private String idGroup, nome_grupo = null;
 	private Boolean atualizaTela = true;
+	
+	//setting
+	private long onMapSendingRate;
+	private long offMapSendingRate;
 
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -87,8 +91,14 @@ public class MapaActivity extends Activity implements
 
 		// set screen on
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
 		mLocationClient = new LocationClient(this, this, this);
+		
+		// start setting database
+		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
+		bdInstance.open();
+		onMapSendingRate = Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue());
+		offMapSendingRate = Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue());
+		bdInstance.close();
 
 		// get activity parameters
 		try {
@@ -124,7 +134,7 @@ public class MapaActivity extends Activity implements
 		getUsersLocationTask();
 		
 		SendPositionSingleton.getInstance(getApplicationContext())
-			.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
+			.setPeriod(onMapSendingRate);
 		super.onResume();
 	}
 
@@ -147,7 +157,7 @@ public class MapaActivity extends Activity implements
 			timer = null;
 		}
 		SendPositionSingleton.getInstance(getApplicationContext())
-			.setPeriod(AppSettings.getAppOffMapSendRate(getApplicationContext()));
+			.setPeriod(offMapSendingRate);
 		super.onStop();
 	}
 
@@ -203,7 +213,7 @@ public class MapaActivity extends Activity implements
 			usersList = new MarkerList();
 			getUsersLocationTask();
 			SendPositionSingleton.getInstance(getApplicationContext())
-				.setPeriod(AppSettings.getAppMapSendRate(getApplicationContext()));
+				.setPeriod(onMapSendingRate);
 
 		} else {
 			Toast.makeText(
@@ -246,7 +256,7 @@ public class MapaActivity extends Activity implements
 				new GetUsersLocationAsyncTask().execute();
 			}
 		};
-        timer.schedule(task0, 0, AppSettings.getAppMapSendRate(getApplicationContext()));
+        timer.schedule(task0, 0, onMapSendingRate);
 	}
 
 	/**

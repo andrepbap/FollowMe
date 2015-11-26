@@ -11,7 +11,7 @@ public class Bd {
 	
 	// nome da tabela
 	public static final String TABELA_USUARIO = "motorista";
-	public static final String TABELA_SETTINGS = "settings";
+	public static final String TABELA_SETTING = "setting";
 	// campos da tabela
 	public static final String ID_USUARIO = "id";
 	public static final String NOME_USUARIO = "nome";   
@@ -20,9 +20,7 @@ public class Bd {
 	public static final String LOGADO_USUARIO = "logado"; 
 	
 	public static final String ID_SETTING = "id";
-	public static final String ATUALIZA = "atualiza"; 
-	public static final String TEXT_PERIOD = "text_period";
-	public static final String VALUE_PERIOD = "value_period"; 
+	public static final String VALUE = "value"; 
 	
 	private static final String USUARIO_CREATE_TABLE = "CREATE TABLE "
 			+ TABELA_USUARIO + "  (" +
@@ -34,11 +32,9 @@ public class Bd {
 								  "  );";
 	
 	private static final String SETTINGS_CREATE_TABLE = "CREATE TABLE "
-			+ TABELA_SETTINGS + "  (" +
-										ID_SETTING + " INTEGER NOT NULL PRIMARY KEY," +
-										ATUALIZA + " BOOLEAN NOT NULL, " +
-										TEXT_PERIOD + " TEXT NOT NULL,"+
-										VALUE_PERIOD + " LONG NOT NULL"+
+			+ TABELA_SETTING + "  (" +
+										ID_SETTING + " STRING NOT NULL PRIMARY KEY," +
+										VALUE + " STRING NOT NULL" +
 								  "  );";
 	
 	private static final String TAG = "Db";
@@ -99,14 +95,14 @@ public class Bd {
 			if (oldVersion == validLast && validLast > 0)
 			{
 				db.execSQL("ALTER TABLE " + TABELA_USUARIO   + " RENAME TO " + TABELA_USUARIO   + "BK");
-				db.execSQL("ALTER TABLE " + TABELA_SETTINGS   + " RENAME TO " + TABELA_SETTINGS   + "BK");
+				db.execSQL("ALTER TABLE " + TABELA_SETTING   + " RENAME TO " + TABELA_SETTING   + "BK");
 			}
 			// elimina tabelas
 			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO);
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTINGS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTING);
 			// cria novas tabelas
 			onCreate(db);
-			// Copia dados anteriores para tabelas novas SEMPRE ALTERAR QUANDO MUDAR VERSÇÃO
+			// Copia dados anteriores para tabelas novas SEMPRE ALTERAR QUANDO MUDAR VERSÃO
 			if (oldVersion == validLast && validLast > 0)
 			{
 				db.execSQL("INSERT INTO "+ TABELA_USUARIO + " SELECT " +	ID_USUARIO + "," + 
@@ -115,16 +111,14 @@ public class Bd {
 									SENHA_USUARIO + "," +
 									LOGADO_USUARIO +
 					" FROM " + TABELA_USUARIO +"BK");
-				db.execSQL("INSERT INTO "+ TABELA_SETTINGS + " SELECT " +	ID_SETTING + "," + 
-									ATUALIZA + "," +
-									TEXT_PERIOD + "," +
-									VALUE_PERIOD + 
-					" FROM " + TABELA_SETTINGS +"BK");
+				db.execSQL("INSERT INTO "+ TABELA_SETTING + " SELECT " +	ID_SETTING + "," + 
+									VALUE +
+					" FROM " + TABELA_SETTING +"BK");
 
 			}			
 			// Elimina tabelas provisórias utilizadas para manter os dados
 			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO    + "_BK");
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTINGS   + "_BK");
+			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTING   + "_BK");
 		}
 	}
     

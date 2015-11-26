@@ -6,7 +6,6 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.followme.LoginActivity;
 import com.followme.utils.HttpConnection;
 
 import android.util.Log;
@@ -47,6 +46,7 @@ public abstract class UserWeb {
 			jo.put("longitude", longitude);
 			jo.put("date", currentDateandTime);
 
+			Log.e(TAG, jo.toString());
 		} catch (JSONException e1) {
 			Log.e(TAG, "refresh position error");
 		}

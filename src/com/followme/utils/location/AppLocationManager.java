@@ -25,8 +25,7 @@ public class AppLocationManager implements LocationListener {
     }
 
     private void setMostRecentLocation(Location lastKnownLocation) {
-    	this.latitude = lastKnownLocation.getLatitude();
-    	this.longitude = lastKnownLocation.getLongitude();
+    	// do nothing
     }
 
     public double getLatitude() {
@@ -46,8 +45,8 @@ public class AppLocationManager implements LocationListener {
      */
     @Override
     public void onLocationChanged(Location location) {
-        this.latitude = location.getLongitude();/// * 1E6);
-        this.longitude = location.getLatitude();// * 1E6);
+        latitude = location.getLongitude();/// * 1E6);
+        longitude = location.getLatitude();// * 1E6);
     }
 
     /*

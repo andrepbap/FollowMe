@@ -46,7 +46,6 @@ public abstract class UserWeb {
 			jo.put("longitude", longitude);
 			jo.put("date", currentDateandTime);
 
-			Log.e(TAG, jo.toString());
 		} catch (JSONException e1) {
 			Log.e(TAG, "refresh position error");
 		}

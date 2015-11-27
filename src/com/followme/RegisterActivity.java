@@ -9,19 +9,25 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.followme.entity.Setting;
 import com.followme.entity.User;
-import com.followme.model.UserDAO;
+import com.followme.model.SettingDAO;
+import com.followme.model.SettingsID;
 import com.followme.model.web.UserWeb;
 import com.followme.utils.encryption.Encrypt;
 
 public class RegisterActivity extends Activity {
 
+	// Log tag
+	private static final String TAG = RegisterActivity.class.getSimpleName();
+	
 	private AlertDialog alerta;
 
 	private User user;
@@ -48,6 +54,16 @@ public class RegisterActivity extends Activity {
 		
 		pDialog = new ProgressDialog(this);
 	}
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            this.finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 	public void save(View v) {
 		user = new User();
@@ -161,10 +177,9 @@ public class RegisterActivity extends Activity {
 		
 		
 		// set user attributes
-		user.setNome(txtName.getText().toString());
+		user.setName(txtName.getText().toString());
 		user.setEmail(txtEmail.getText().toString());
-		user.setSenha(Encrypt.sha1Hash(txtPassword.getText().toString()));
-		user.setLogado(1);
+		user.setPassword(Encrypt.sha1Hash(txtPassword.getText().toString()));
 
         // Showing progress dialog before making http request
         pDialog.setMessage("Estamos efetuando seu cadastro!");
@@ -189,20 +204,23 @@ public class RegisterActivity extends Activity {
 
 		@Override
 		protected String doInBackground(String... params) {
-			return UserWeb.register(user.getNome(), user.getEmail(), user.getSenha());
+			return UserWeb.register(user.getName(), user.getEmail(), user.getPassword());
 		}
 
 		protected void onPostExecute(String result) {
-			Log.e("json", result);
-			UserDAO bd = new UserDAO(getApplicationContext());
+			Log.e(TAG, result);
+			SettingDAO bdInstance = new SettingDAO(getApplicationContext());
 
 			try {
-				JSONObject jObj = new JSONObject(result);
-				user.setId(jObj.getInt("idUser"));
+				JSONObject json = new JSONObject(result);
+				
+				Setting loggedUserId = new Setting(SettingsID.LOGGED_USER_ID, json.getString("idUser"));
+				Setting loggedUserPassword = new Setting(SettingsID.LOGGED_USER_PASSWORD, json.getString("password"));
 
-				bd.open();
-				bd.gravaUsuario(user);
-				bd.close();
+				bdInstance.open();
+				bdInstance.saveSetting(loggedUserId);
+				bdInstance.saveSetting(loggedUserPassword);
+				bdInstance.close();
 
 				Intent it = new Intent(getBaseContext(), MainActivity.class);
 				startActivity(it);

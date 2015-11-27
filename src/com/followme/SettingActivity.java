@@ -5,10 +5,11 @@ import java.util.List;
 
 import com.followme.entity.Setting;
 import com.followme.model.SettingDAO;
-import com.followme.utils.location.SendPositionSingleton;
+import com.followme.model.SettingsID;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,9 +40,9 @@ public class SettingActivity extends Activity {
 		bdInstance.open();
 		
 		// Initialize variables
-		isOffMapSending = Boolean.valueOf(bdInstance.getSetting("isOffMapSending").getValue());
-		offMapPeriod = new Period(Long.valueOf(bdInstance.getSetting("offMapSendingRate").getValue()));
-		onMapPeriod = new Period(Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue()));
+		isOffMapSending = Boolean.valueOf(bdInstance.getSetting(SettingsID.IS_OFF_MAP_SENDING).getValue());
+		offMapPeriod = new Period(Long.valueOf(bdInstance.getSetting(SettingsID.OFF_MAP_SENDING_RATE).getValue()));
+		onMapPeriod = new Period(Long.valueOf(bdInstance.getSetting(SettingsID.ON_MAP_SENDING_RATE).getValue()));
 		
 		// close database
 		bdInstance.close();
@@ -135,9 +136,9 @@ public class SettingActivity extends Activity {
 		//save settings
 		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
 		
-		Setting isOffMapSending = new Setting("isOffMapSending", Boolean.toString(this.isOffMapSending));
-		Setting onMapSendingRate = new Setting("onMapSendingRate", Long.toString(onMapPeriod.value));
-		Setting offMapSendingRate = new Setting("offMapSendingRate", Long.toString(offMapPeriod.value));
+		Setting isOffMapSending = new Setting(SettingsID.IS_OFF_MAP_SENDING, Boolean.toString(this.isOffMapSending));
+		Setting onMapSendingRate = new Setting(SettingsID.ON_MAP_SENDING_RATE, Long.toString(onMapPeriod.value));
+		Setting offMapSendingRate = new Setting(SettingsID.OFF_MAP_SENDING_RATE, Long.toString(offMapPeriod.value));
 		
 		bdInstance.open();
 		bdInstance.saveSetting(isOffMapSending);
@@ -146,13 +147,9 @@ public class SettingActivity extends Activity {
 		bdInstance.close();
 		
 		//change settings
-		SendPositionSingleton sps = SendPositionSingleton.getInstance(getApplicationContext());
-		sps.setPeriod(offMapPeriod.value);
-		if(this.isOffMapSending){
-			sps.start();
-		} else {
-			sps.stop();
-		}
+		Intent SendLocationIntent = new Intent(this, SendLocationService.class);
+		stopService(SendLocationIntent);
+		startService(SendLocationIntent);
 		
 		super.onDestroy();
 	}

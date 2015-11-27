@@ -11,13 +11,11 @@ public class ServerParams {
 	
 	public static String getEncryptedApiKey() {
 		long unixTime = System.currentTimeMillis() / 1000L;
-		Log.e("key + salt", API_KEY + "-" + Long.toString(unixTime));
 		
 		ApiCrypter apiCrypter = new ApiCrypter();
 		String apiKey = null;
 		try {
 			apiKey = ApiCrypter.bytesToHex(apiCrypter.encrypt(API_KEY + "-" + unixTime));
-			Log.e("encrypted", apiKey);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Log.e("crypter error", e.getMessage());

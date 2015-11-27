@@ -78,10 +78,10 @@ public class EdicaoActivity extends Activity {
 
 	public void inicializaComponentes() {
 		bd.open();
-		motorista = bd.getUsuario();
+		//motorista = bd.getUsuario();
 		
 		txtNome = (EditText) findViewById(R.id.txtNome);
-		txtNome.setText(motorista.getNome());
+		//txtNome.setText(motorista.getNome());
 		
 		txtEmail = (EditText) findViewById(R.id.txtEmail);
 		txtEmail.setText(motorista.getEmail());
@@ -183,14 +183,14 @@ public class EdicaoActivity extends Activity {
 
 		}
 
-		motorista.setSenha("null");
+		//motorista.setSenha("null");
 		if (!txtSenha.getText().toString().equals("")) {
 			if (!(txtSenha.getText().toString().equals(txtConfirmacaoSenha
 					.getText().toString()))) {
 				mensagem("aviso", "Senhas não correspondentes.");
 				return;
 			}
-			motorista.setSenha(Encrypt.sha1Hash(txtSenha.getText().toString()));
+			//motorista.setSenha(Encrypt.sha1Hash(txtSenha.getText().toString()));
 		}
 		
         String senha=txtSenha.getText().toString();
@@ -230,7 +230,7 @@ public class EdicaoActivity extends Activity {
 		}
 		
 		// atribui os dados nos atributos do objeto motorista
-		motorista.setNome(txtNome.getText().toString());
+		//motorista.setNome(txtNome.getText().toString());
 		motorista.setEmail(txtEmail.getText().toString());
 		
 		

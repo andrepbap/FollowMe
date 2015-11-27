@@ -3,35 +3,35 @@ package com.followme;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.followme.entity.User;
-import com.followme.model.UserDAO;
+import com.followme.entity.Setting;
+import com.followme.model.SettingDAO;
+import com.followme.model.SettingsID;
 import com.followme.model.web.UserWeb;
 import com.followme.utils.encryption.Encrypt;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity {
 
 	// Log tag
 	private static final String TAG = LoginActivity.class.getSimpleName();
-	private ProgressBar progress;
+
+	private ProgressDialog pDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 
-		// selecionarTipoTrafego();
-		progress = (ProgressBar) findViewById(R.id.loginProgressBar);
-		progress.setVisibility(View.INVISIBLE);
+		pDialog = new ProgressDialog(this);
 	}
 
 	public void register(View v) {
@@ -40,10 +40,10 @@ public class LoginActivity extends Activity {
 	}
 
 	public void entrar(View v) {
-		processaLogin();
+		processLogin();
 	}
 
-	private void processaLogin() {
+	private void processLogin() {
 
 		EditText editEmail = (EditText) findViewById(R.id.emailLogin);
 		EditText editSenha = (EditText) findViewById(R.id.senhaLogin);
@@ -56,7 +56,10 @@ public class LoginActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 		} else {
 			try {
-				progress.setVisibility(View.VISIBLE);
+				// Showing progress dialog before making http request
+		        pDialog.setMessage("Efetuando login...");
+		        pDialog.show();
+		        
 				new ReadJsonAsyncTask().execute(email, Encrypt.sha1Hash(senha));
 
 			} catch (Exception e) {
@@ -75,22 +78,19 @@ public class LoginActivity extends Activity {
 
 		protected void onPostExecute(String result) {
 			Log.e(TAG, result);
-			UserDAO bd = new UserDAO(getApplicationContext());
+			SettingDAO bdInstance = new SettingDAO(getApplicationContext());
 
 			try {
 				JSONObject json = new JSONObject(result);
 
 				try {
+					Setting loggedUserId = new Setting(SettingsID.LOGGED_USER_ID, json.getString("idUser"));
+					Setting loggedUserPassword = new Setting(SettingsID.LOGGED_USER_PASSWORD, json.getString("password"));
 
-					User usuario = new User(Integer.parseInt(json
-							.getString("idUser")), 
-							json.getString("userName"),
-							json.getString("email"),
-							json.getString("password"), 1);
-
-					bd.open();
-					bd.gravaUsuario(usuario);
-					bd.close();
+					bdInstance.open();
+					bdInstance.saveSetting(loggedUserPassword);
+					bdInstance.saveSetting(loggedUserId);
+					bdInstance.close();
 
 					Intent it = new Intent(getBaseContext(), MainActivity.class);
 					it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -111,14 +111,14 @@ public class LoginActivity extends Activity {
 				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
 						.show();
 
-				progress.setVisibility(View.INVISIBLE);
+				pDialog.dismiss();
 			} catch (Exception e2) {
 
 				e2.printStackTrace();
 				Toast.makeText(getBaseContext(), e2.getLocalizedMessage(),
 						Toast.LENGTH_SHORT).show();
 
-				progress.setVisibility(View.INVISIBLE);
+				pDialog.dismiss();
 			}
 		}
 	}

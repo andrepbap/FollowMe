@@ -5,8 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="17" />
+        android:minSdkVersion="15"
+        android:targetSdkVersion="22" />
     
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     
@@ -42,6 +42,8 @@
             android:value="AIzaSyCosyaQFX7m4Sr3fI9BvACBw-fMkwBvt6s"/>
         <meta-data android:name="com.google.android.gms.version"
         	android:value="@integer/google_play_services_version" />
+        <service
+            android:name=".SendLocationService" />
         <activity
             android:name="com.followme.MainActivity"
             android:label="@string/app_name" >

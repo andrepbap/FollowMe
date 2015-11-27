@@ -3,44 +3,37 @@ package com.followme.entity;
 public class User {
 
 	private int id;
-	private String nome;
+	private String name;
 	private String email;
-	private String senha;
 	private String url;
-	private String autorizado;
-	private int logado;
-
-	public User() {
-		super();
+	private String authorized;
+	private String password;
+	
+	public User(){
+		
 	}
 	
-	public User(int id, String nome, String email, String senha, int logado) {
-		super();
+	public User(int id, String name, String email) {
 		this.id = id;
-		this.nome = nome;
+		this.name = name;
 		this.email = email;
-		this.senha = senha;
-		this.logado = logado;
 	}
 
-	public User(int id, String url, String autorizado, String nome, String email, String senha, int logado) {
-		super();
+	public User(int id, String url, String authorized, String name, String email, String senha, int logado) {
 		this.id = id;
 		this.url = url;
-		this.autorizado = autorizado;
-		this.nome = nome;
+		this.authorized = authorized;
+		this.name = name;
 		this.email = email;
-		this.senha = senha;
-		this.logado = logado;
 
 	}
 
-	public String getAutorizado() {
-		return autorizado;
+	public String getAuthorized() {
+		return authorized;
 	}
 
-	public void setAutorizado(String autorizado) {
-		this.autorizado = autorizado;
+	public void setAuthorized(String authorized) {
+		this.authorized = authorized;
 	}
 
 	public String getUrl() {
@@ -59,41 +52,33 @@ public class User {
 		this.id = id;
 	}
 
-	public String getNome() {
-		return nome;
+	public String getName() {
+		return name;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getEmail() {
 		return email;
 	}
 
-	public String getSenha() {
-		return senha;
-	}
-
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
-	public void setSenha(String senha) {
-		this.senha = senha;
+	public String getPassword() {
+		return password;
 	}
 
-	public int getLogado() {
-		return logado;
-	}
-
-	public void setLogado(int logado) {
-		this.logado = logado;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override
 	public String toString() {
-		return "Motorista [id=" + id + ", nome=" + nome + ", email=" + email
+		return "Motorista [id=" + id + ", name=" + name + ", email=" + email
 				+ "]";
 	}
 

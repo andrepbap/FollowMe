@@ -11,10 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import com.followme.R;
 import com.followme.model.SettingDAO;
+import com.followme.model.SettingsID;
 import com.followme.model.web.GroupWeb;
+import com.followme.model.web.UserWeb;
 import com.followme.utils.MarkerList;
 import com.followme.utils.RoundedImageView;
-import com.followme.utils.location.SendPositionSingleton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -52,8 +53,8 @@ public class MapaActivity extends Activity implements
 		OnMyLocationChangeListener {
 
 	// Log tag
-    private static final String TAG = MapaActivity.class.getSimpleName();
-    
+	private static final String TAG = MapaActivity.class.getSimpleName();
+
 	// images
 	private Handler handler = new Handler();
 
@@ -72,10 +73,10 @@ public class MapaActivity extends Activity implements
 	// parameters
 	private String idGroup, nome_grupo = null;
 	private Boolean atualizaTela = true;
-	
-	//setting
+
+	// setting
 	private long onMapSendingRate;
-	private long offMapSendingRate;
+	private int loggedUserId;
 
 	/*
 	 * Define a request code to send to Google Play services This code is
@@ -92,12 +93,14 @@ public class MapaActivity extends Activity implements
 		// set screen on
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		mLocationClient = new LocationClient(this, this, this);
-		
+
 		// start setting database
 		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
 		bdInstance.open();
-		onMapSendingRate = Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue());
-		offMapSendingRate = Long.valueOf(bdInstance.getSetting("onMapSendingRate").getValue());
+		onMapSendingRate = Long.valueOf(bdInstance.getSetting(
+				SettingsID.ON_MAP_SENDING_RATE).getValue());
+		loggedUserId = Integer.valueOf(bdInstance.getSetting(
+				SettingsID.LOGGED_USER_ID).getValue());
 		bdInstance.close();
 
 		// get activity parameters
@@ -108,33 +111,22 @@ public class MapaActivity extends Activity implements
 			String nome_grupo = it.getStringExtra("nome_grupo");
 			this.idGroup = idGroup;
 			this.nome_grupo = nome_grupo;
-			getActionBar().setTitle(this.nome_grupo); 
+			getActionBar().setTitle(this.nome_grupo);
 
 		} catch (Exception erro) {
 			Log.e("Script", "erro");
 		}
 
-		// Initialize map 
-		map = ((MapFragment) getFragmentManager()
-				.findFragmentById(R.id.map)).getMap();
+		// Initialize map
+		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+				.getMap();
 		map.setMyLocationEnabled(true);
 		map.setTrafficEnabled(true);
-
-		// initialize engine
-		initializeEngine();
 	}
-	
+
 	@Override
-	public void onResume(){
-		//restart timer
-		if(timer != null){
-			timer.cancel();
-			timer = null;
-		} 
-		getUsersLocationTask();
-		
-		SendPositionSingleton.getInstance(getApplicationContext())
-			.setPeriod(onMapSendingRate);
+	public void onResume() {
+		stopTimerTask();
 		super.onResume();
 	}
 
@@ -147,18 +139,13 @@ public class MapaActivity extends Activity implements
 		}
 
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		// Disconnecting the client invalidates it.
 		mLocationClient.disconnect();
-		if(timer != null){
-			timer.cancel();
-			timer = null;
-		}
-		SendPositionSingleton.getInstance(getApplicationContext())
-			.setPeriod(offMapSendingRate);
-		super.onStop();
+		stopTimerTask();
+		super.onDestroy();
 	}
 
 	@Override
@@ -202,27 +189,22 @@ public class MapaActivity extends Activity implements
 		}
 
 	}
-	
+
 	/**
-	 * 
+	 * initialize trade of users position. This method is called when onConnected is executed.
 	 */
 	private void initializeEngine() {
 		if (isConnected(getApplicationContext()) == true) {
-			
 			map.setOnMyLocationChangeListener(this);
 			usersList = new MarkerList();
-			getUsersLocationTask();
-			SendPositionSingleton.getInstance(getApplicationContext())
-				.setPeriod(onMapSendingRate);
-
+			getAndSetUsersLocationTask();
 		} else {
-			Toast.makeText(
-					getBaseContext(),
-					"Verifique sua conexão com a internet.",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(getBaseContext(),
+					"Verifique sua conexão com a internet.", Toast.LENGTH_SHORT)
+					.show();
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param context
@@ -246,28 +228,43 @@ public class MapaActivity extends Activity implements
 		}
 	}
 	
+	private void stopTimerTask(){
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+			task0 = null;
+		}
+	}
+
 	/**
 	 * Initialize thread to get users position.
 	 */
-	private void getUsersLocationTask(){
+	private void getAndSetUsersLocationTask() {
+		stopTimerTask();
 		timer = new Timer();
-		task0 = new TimerTask(){
-			public void run(){
+		task0 = new TimerTask() {
+			public void run() {
 				new GetUsersLocationAsyncTask().execute();
+				String result = UserWeb.atualizaPosicao(loggedUserId,
+						mLocationClient.getLastLocation().getLatitude(),
+						mLocationClient.getLastLocation().getLongitude());
+				Log.i(TAG, result);
 			}
 		};
-        timer.schedule(task0, 0, onMapSendingRate);
+		timer.schedule(task0, 0, onMapSendingRate);
 	}
 
 	/**
 	 * Assemble users markers with pin icon and their photos.
+	 * 
 	 * @param patch
 	 * @param icon
 	 * @param userId
 	 * @param latitude
 	 * @param longitude
 	 */
-	private void loadMarker(String patch, Bitmap icon, int userId, double latitude, double longitude) {
+	private void loadMarker(String patch, Bitmap icon, int userId,
+			double latitude, double longitude) {
 		final String param = patch;
 		final int id = userId;
 		final Bitmap newIcon = icon;
@@ -284,17 +281,18 @@ public class MapaActivity extends Activity implements
 
 					Bitmap roundFoto = RoundedImageView.getCroppedBitmap(foto,
 							100);
-					final Bitmap markerIcon = RoundedImageView.getMergedBitmap(newIcon, roundFoto, getBaseContext());
+					final Bitmap markerIcon = RoundedImageView.getMergedBitmap(
+							newIcon, roundFoto, getBaseContext());
 
 					handler.post(new Runnable() {
 						public void run() {
 
 							Marker marker = map.addMarker(new MarkerOptions()
-									.position(new LatLng(lat, lng))
-									.icon(BitmapDescriptorFactory
-											.fromBitmap(markerIcon)));						
-							
-							usersList.add(id,marker);
+									.position(new LatLng(lat, lng)).icon(
+											BitmapDescriptorFactory
+													.fromBitmap(markerIcon)));
+
+							usersList.add(id, marker);
 						}
 					});
 				} catch (Exception e2) {
@@ -304,7 +302,8 @@ public class MapaActivity extends Activity implements
 		}.start();
 	}
 
-	private class GetUsersLocationAsyncTask extends AsyncTask<String, Void, String> {
+	private class GetUsersLocationAsyncTask extends
+			AsyncTask<String, Void, String> {
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -322,9 +321,9 @@ public class MapaActivity extends Activity implements
 
 					try {
 						if (usersList.contains(obj.getInt("idUser"))) {
-							usersList
-								.get(obj.getInt("idUser"))
-								.setPosition( new LatLng(obj.getDouble("latitude"),obj.getDouble("longitude")));
+							usersList.get(obj.getInt("idUser")).setPosition(
+									new LatLng(obj.getDouble("latitude"), obj
+											.getDouble("longitude")));
 						} else {
 							int color;
 							switch (i) {
@@ -351,8 +350,12 @@ public class MapaActivity extends Activity implements
 								break;
 							}
 
-							Bitmap imgMarker = BitmapFactory.decodeResource(getResources(), color);
-							loadMarker(obj.getString("photo_patch"), imgMarker, obj.getInt("idUser"), obj.getDouble("latitude"),obj.getDouble("longitude"));
+							Bitmap imgMarker = BitmapFactory.decodeResource(
+									getResources(), color);
+							loadMarker(obj.getString("photo_patch"), imgMarker,
+									obj.getInt("idUser"),
+									obj.getDouble("latitude"),
+									obj.getDouble("longitude"));
 							Log.e(TAG, "marcador criado");
 						}
 
@@ -369,7 +372,7 @@ public class MapaActivity extends Activity implements
 
 				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
 						.show();
-				
+
 				Log.e(TAG, "Exception: e1");
 			} catch (JSONException e2) {
 				e2.printStackTrace();
@@ -380,7 +383,7 @@ public class MapaActivity extends Activity implements
 						.show();
 
 				Log.e(TAG, "Exception: e2");
-				
+
 			} catch (Exception e3) {
 				// TODO Auto-generated catch block
 				e3.printStackTrace();
@@ -411,6 +414,9 @@ public class MapaActivity extends Activity implements
 				.zoom(17).build();
 
 		map.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+		
+		// initialize engine
+		initializeEngine();
 	}
 
 	/*
@@ -458,15 +464,17 @@ public class MapaActivity extends Activity implements
 	public void onMyLocationChange(Location location) {
 		// TODO Auto-generated method stub
 		if (location != null) {
-			if(atualizaTela){
+			if (atualizaTela) {
 				float zoom = map.getCameraPosition().zoom;
-				
+
 				CameraPosition currentPlace = new CameraPosition.Builder()
 						.target(new LatLng(location.getLatitude(), location
-								.getLongitude())).bearing(location.getBearing())
-						.tilt(65.5f).zoom(zoom).build();
-	
-				map.animateCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+								.getLongitude()))
+						.bearing(location.getBearing()).tilt(65.5f).zoom(zoom)
+						.build();
+
+				map.animateCamera(CameraUpdateFactory
+						.newCameraPosition(currentPlace));
 			}
 		}
 

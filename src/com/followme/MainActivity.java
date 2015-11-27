@@ -3,11 +3,9 @@ package com.followme;
 import com.followme.entity.Group;
 import com.followme.entity.Setting;
 import com.followme.list.GroupListAdapter;
-import com.followme.model.Bd;
 import com.followme.model.SettingDAO;
-import com.followme.model.UserDAO;
+import com.followme.model.SettingsID;
 import com.followme.model.web.UserWeb;
-import com.followme.utils.location.SendPositionSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +30,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
+	// Log tag
+	private static final String TAG = MainActivity.class.getSimpleName();
+	
 	// default setting parameters
 	private static final boolean IS_OFF_MAP_SENDING = true;
 	private static final long ON_MAP_SENDING_RATE = 5000;
@@ -39,10 +40,6 @@ public class MainActivity extends Activity {
 	
 	// settings
 	private boolean isOffMapSending;
-	private long offMapSendingRate;
-
-	// Log tag
-	private static final String TAG = MainActivity.class.getSimpleName();
 
 	// Group parameters
 	private ProgressDialog pDialog;
@@ -51,15 +48,17 @@ public class MainActivity extends Activity {
 	private GroupListAdapter adapter;
 
 	// Data base
-	private UserDAO userBdInstance;
-	private SettingDAO settingBdInstance;
-	private int id_logado;
+	private SettingDAO bdInstance;
+	private int loggedUserId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// create database instance
+		bdInstance = new SettingDAO(getApplicationContext());
+		
 		// verify login
 		if (!verifyLoggedUser()) {
 			Intent itLogin = new Intent(this, LoginActivity.class);
@@ -73,13 +72,8 @@ public class MainActivity extends Activity {
 			startDefaultSettingsDatabase();
 		}
 
-		// start send position singleton
-		SendPositionSingleton sps = SendPositionSingleton
-				.getInstance(getApplicationContext());
-		sps.setUser(id_logado);
-		sps.setPeriod(offMapSendingRate);
 		if (isOffMapSending) {
-			sps.start();
+			startService(new Intent(this, SendLocationService.class));
 		}
 
 		listView = (ListView) findViewById(R.id.list);
@@ -148,44 +142,40 @@ public class MainActivity extends Activity {
 	}
 
 	private boolean verifyLoggedUser() {
-		userBdInstance = new UserDAO(getApplicationContext());
-		userBdInstance.open();
-		if (userBdInstance.getUsuario() == null) {
-			userBdInstance.close();
+		bdInstance.open();
+		if (bdInstance.getSetting(SettingsID.LOGGED_USER_ID) == null) {
+			bdInstance.close();
 			return false;
 		} else {
-			id_logado = userBdInstance.getUsuario().getId();
-			userBdInstance.close();
+			loggedUserId = Integer.valueOf(bdInstance.getSetting(SettingsID.LOGGED_USER_ID).getValue());
+			bdInstance.close();
 			return true;
 		}
 	}
 	
 	private boolean verifySettings(){
-		settingBdInstance = new SettingDAO(getApplicationContext());
-		settingBdInstance.open();
-		if (settingBdInstance.getSetting("isOffMapSending") == null){
-			settingBdInstance.close();
+		bdInstance.open();
+		if (bdInstance.getSetting(SettingsID.IS_OFF_MAP_SENDING) == null){
+			bdInstance.close();
 			return false;
 		} else {
-			isOffMapSending = Boolean.valueOf(settingBdInstance.getSetting("isOffMapSending").getValue());
-			offMapSendingRate = Long.valueOf(settingBdInstance.getSetting("offMapSendingRate").getValue());
-			settingBdInstance.close();
+			isOffMapSending = Boolean.valueOf(bdInstance.getSetting(SettingsID.IS_OFF_MAP_SENDING).getValue());
+			bdInstance.close();
 			return true;
 		}
 	}
 
-	public void startDefaultSettingsDatabase() {
+	private void startDefaultSettingsDatabase() {
 		// Attribute static setting to variables
 		isOffMapSending = IS_OFF_MAP_SENDING;
-		offMapSendingRate = OFF_MAP_SENDING_RATE;
 		
 		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
 
-		Setting isMapSending = new Setting("isOffMapSending",
+		Setting isMapSending = new Setting(SettingsID.IS_OFF_MAP_SENDING,
 				Boolean.toString(IS_OFF_MAP_SENDING));
-		Setting onMapSendingRate = new Setting("onMapSendingRate",
+		Setting onMapSendingRate = new Setting(SettingsID.ON_MAP_SENDING_RATE,
 				Long.toString(ON_MAP_SENDING_RATE));
-		Setting offMapSendingRate = new Setting("offMapSendingRate",
+		Setting offMapSendingRate = new Setting(SettingsID.OFF_MAP_SENDING_RATE,
 				Long.toString(OFF_MAP_SENDING_RATE));
 
 		bdInstance.open();
@@ -199,9 +189,7 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
-
-			return UserWeb.getGroups(id_logado);
+			return UserWeb.getGroups(loggedUserId);
 		}
 
 		protected void onPostExecute(String result) {

@@ -7,32 +7,29 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 
-public class Bd {
+public class Database {
 	
-	// nome da tabela
-	public static final String TABELA_USUARIO = "motorista";
-	public static final String TABELA_SETTING = "setting";
-	// campos da tabela
-	public static final String ID_USUARIO = "id";
-	public static final String NOME_USUARIO = "nome";   
-	public static final String EMAIL_USUARIO = "email";
-	public static final String SENHA_USUARIO = "senha";
-	public static final String LOGADO_USUARIO = "logado"; 
+	// table name
+	public static final String USER_TABLE = "user";
+	public static final String SETTING_TABLE = "setting";
+	
+	// table fields
+	public static final String USER_ID = "id";
+	public static final String USER_NAME = "nome";   
+	public static final String USER_EMAIL = "email"; 
 	
 	public static final String ID_SETTING = "id";
 	public static final String VALUE = "value"; 
 	
-	private static final String USUARIO_CREATE_TABLE = "CREATE TABLE "
-			+ TABELA_USUARIO + "  (" +
-										ID_USUARIO + " INTEGER NOT NULL PRIMARY KEY," +
-										NOME_USUARIO + " TEXT NOT NULL, " +
-										EMAIL_USUARIO + " TEXT NOT NULL,"+
-										SENHA_USUARIO + " TEXT NOT NULL,"+
-										LOGADO_USUARIO + " BOOLEAN NOT NULL"+
+	private static final String USER_CREATE_TABLE = "CREATE TABLE "
+			+ USER_TABLE + "  (" +
+										USER_ID + " INTEGER NOT NULL PRIMARY KEY," +
+										USER_NAME + " TEXT NOT NULL, " +
+										USER_EMAIL + " TEXT NOT NULL"+
 								  "  );";
 	
 	private static final String SETTINGS_CREATE_TABLE = "CREATE TABLE "
-			+ TABELA_SETTING + "  (" +
+			+ SETTING_TABLE + "  (" +
 										ID_SETTING + " STRING NOT NULL PRIMARY KEY," +
 										VALUE + " STRING NOT NULL" +
 								  "  );";
@@ -46,11 +43,11 @@ public class Bd {
 	 
 	private final Context mCtx;
 
-	public Bd(Context ctx) {
+	public Database(Context ctx) {
 		this.mCtx = ctx;
 	}
  
-	public Bd open() throws SQLException {
+	public Database open() throws SQLException {
 		mDbHelper = new DatabaseHelper(mCtx);
 		mDb = mDbHelper.getWritableDatabase();
 		return this;
@@ -82,7 +79,7 @@ public class Bd {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 	 
-			db.execSQL(USUARIO_CREATE_TABLE);
+			db.execSQL(USER_CREATE_TABLE);
 			db.execSQL(SETTINGS_CREATE_TABLE);
 			Log.w("DbAdapter","DB criado com sucesso!");
 		}
@@ -94,31 +91,29 @@ public class Bd {
 			int validLast = newVersion - 1;
 			if (oldVersion == validLast && validLast > 0)
 			{
-				db.execSQL("ALTER TABLE " + TABELA_USUARIO   + " RENAME TO " + TABELA_USUARIO   + "BK");
-				db.execSQL("ALTER TABLE " + TABELA_SETTING   + " RENAME TO " + TABELA_SETTING   + "BK");
+				db.execSQL("ALTER TABLE " + USER_TABLE   + " RENAME TO " + USER_TABLE   + "BK");
+				db.execSQL("ALTER TABLE " + SETTING_TABLE   + " RENAME TO " + SETTING_TABLE   + "BK");
 			}
 			// elimina tabelas
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO);
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTING);
+			db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + SETTING_TABLE);
 			// cria novas tabelas
 			onCreate(db);
 			// Copia dados anteriores para tabelas novas SEMPRE ALTERAR QUANDO MUDAR VERSÃO
 			if (oldVersion == validLast && validLast > 0)
 			{
-				db.execSQL("INSERT INTO "+ TABELA_USUARIO + " SELECT " +	ID_USUARIO + "," + 
-									NOME_USUARIO + "," +
-									EMAIL_USUARIO + "," +
-									SENHA_USUARIO + "," +
-									LOGADO_USUARIO +
-					" FROM " + TABELA_USUARIO +"BK");
-				db.execSQL("INSERT INTO "+ TABELA_SETTING + " SELECT " +	ID_SETTING + "," + 
+				db.execSQL("INSERT INTO "+ USER_TABLE + " SELECT " +	USER_ID + "," + 
+									USER_NAME + "," +
+									USER_EMAIL + 
+					" FROM " + USER_TABLE +"BK");
+				db.execSQL("INSERT INTO "+ SETTING_TABLE + " SELECT " +	ID_SETTING + "," + 
 									VALUE +
-					" FROM " + TABELA_SETTING +"BK");
+					" FROM " + SETTING_TABLE +"BK");
 
 			}			
 			// Elimina tabelas provisórias utilizadas para manter os dados
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_USUARIO    + "_BK");
-			db.execSQL("DROP TABLE IF EXISTS " + TABELA_SETTING   + "_BK");
+			db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE    + "_BK");
+			db.execSQL("DROP TABLE IF EXISTS " + SETTING_TABLE   + "_BK");
 		}
 	}
     

@@ -38,12 +38,18 @@
         android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <meta-data android:name="com.google.android.maps.v2.API_KEY" 
             android:value="AIzaSyCosyaQFX7m4Sr3fI9BvACBw-fMkwBvt6s"/>
         <meta-data android:name="com.google.android.gms.version"
         	android:value="@integer/google_play_services_version" />
         <service
             android:name=".SendLocationService" />
+        <activity android:name="com.facebook.FacebookActivity"
+          android:configChanges=
+                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+          android:theme="@android:style/Theme.Translucent.NoTitleBar"
+          android:label="@string/app_name" />
         <activity
             android:name="com.followme.MainActivity"
             android:label="@string/app_name" >

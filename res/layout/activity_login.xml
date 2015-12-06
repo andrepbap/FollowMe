@@ -41,13 +41,21 @@
             android:layout_height="wrap_content"
             android:onClick="entrar"
             android:text="@string/login_btn_login" />
-        
+
         <Button
             android:id="@+id/button1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="register"
             android:text="@string/login_cadastrar" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp" />
     </LinearLayout>
 
 </ScrollView>

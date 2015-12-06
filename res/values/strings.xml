@@ -149,5 +149,6 @@
     <string name="setting_button_save">Salvar</string>
     <string name="setting_button_cancel">Cancelar</string>
     <string name="txt_settings">Configurações</string>
+    <string name="facebook_app_id">902100199827589</string>
 
 </resources>

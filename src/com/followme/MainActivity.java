@@ -1,5 +1,6 @@
 package com.followme;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.followme.entity.Group;
 import com.followme.entity.Setting;
 import com.followme.list.GroupListAdapter;
@@ -50,10 +51,12 @@ public class MainActivity extends Activity {
 	// Data base
 	private SettingDAO bdInstance;
 	private int loggedUserId;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_main);
 
 		// create database instance
@@ -108,6 +111,24 @@ public class MainActivity extends Activity {
 
 	}
 
+	//facebook
+	
+	@Override
+	protected void onResume() {
+	  super.onResume();
+
+	  // Logs 'install' and 'app activate' App Events.
+	  AppEventsLogger.activateApp(this);
+	}
+	
+	@Override
+	protected void onPause() {
+	  super.onPause();
+
+	  // Logs 'app deactivate' App Event.
+	  AppEventsLogger.deactivateApp(this);
+	}
+	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();

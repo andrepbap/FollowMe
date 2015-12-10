@@ -7,5 +7,6 @@ public class SettingsID {
 	public static final String ON_MAP_SENDING_RATE = "onMapSendingRate";
 	public static final String LOGGED_USER_ID = "loggedUserId";
 	public static final String LOGGED_USER_PASSWORD = "loggedUserPassword";
+	public static final String LOGGED_USER_PHOTO_PATCH = "loggedUserPhotoPatch";
 
 }

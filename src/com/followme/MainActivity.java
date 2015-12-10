@@ -1,13 +1,16 @@
 package com.followme;
 
-import com.facebook.appevents.AppEventsLogger;
 import com.followme.entity.Group;
 import com.followme.entity.Setting;
 import com.followme.list.GroupListAdapter;
 import com.followme.model.SettingDAO;
 import com.followme.model.SettingsID;
 import com.followme.model.web.UserWeb;
+import com.followme.utils.RoundedImageView;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +18,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,12 +59,12 @@ public class MainActivity extends Activity {
 	// Data base
 	private SettingDAO bdInstance;
 	private int loggedUserId;
+	private String loggedUserPhotoPatch;
 	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_main);
 
 		// create database instance
@@ -74,6 +82,8 @@ public class MainActivity extends Activity {
 		if(!verifySettings()){
 			startDefaultSettingsDatabase();
 		}
+		
+		loadProfilePicture();
 
 		if (isOffMapSending) {
 			startService(new Intent(this, SendLocationService.class));
@@ -110,24 +120,6 @@ public class MainActivity extends Activity {
 		});
 
 	}
-
-	//facebook
-	
-	@Override
-	protected void onResume() {
-	  super.onResume();
-
-	  // Logs 'install' and 'app activate' App Events.
-	  AppEventsLogger.activateApp(this);
-	}
-	
-	@Override
-	protected void onPause() {
-	  super.onPause();
-
-	  // Logs 'app deactivate' App Event.
-	  AppEventsLogger.deactivateApp(this);
-	}
 	
 	@Override
 	public void onDestroy() {
@@ -161,6 +153,32 @@ public class MainActivity extends Activity {
 		}
 		return true;
 	}
+	
+	private void loadProfilePicture() {
+		final String param = loggedUserPhotoPatch;
+		Log.i(TAG, loggedUserPhotoPatch);
+
+		new Thread() {
+			public void run() {
+				try {
+					URL url = new URL(param);
+					HttpURLConnection conexao = (HttpURLConnection) url
+							.openConnection();
+					InputStream input = conexao.getInputStream();
+					Bitmap foto = BitmapFactory.decodeStream(input);
+
+					Bitmap profilePicture = RoundedImageView.getCroppedBitmap(foto,
+							100);
+					Drawable finalPitcture = new BitmapDrawable(getResources(), profilePicture);
+					ActionBar actionBar = getActionBar();
+					actionBar.setIcon(finalPitcture);
+
+				} catch (Exception e) {
+					Log.e(TAG, e.getMessage());
+				}
+			}
+		}.start();
+	}
 
 	private boolean verifyLoggedUser() {
 		bdInstance.open();
@@ -169,6 +187,7 @@ public class MainActivity extends Activity {
 			return false;
 		} else {
 			loggedUserId = Integer.valueOf(bdInstance.getSetting(SettingsID.LOGGED_USER_ID).getValue());
+			loggedUserPhotoPatch = bdInstance.getSetting(SettingsID.LOGGED_USER_PHOTO_PATCH).getValue();
 			bdInstance.close();
 			return true;
 		}

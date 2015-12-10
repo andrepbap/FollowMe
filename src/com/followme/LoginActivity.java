@@ -1,13 +1,10 @@
 package com.followme;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -15,10 +12,6 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphRequestAsyncTask;
 import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.Profile;
-import com.facebook.ProfileTracker;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.followme.entity.Setting;
@@ -27,7 +20,6 @@ import com.followme.model.SettingsID;
 import com.followme.model.web.UserWeb;
 import com.followme.utils.encryption.Encrypt;
 
-import android.R.array;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -49,7 +41,6 @@ public class LoginActivity extends Activity {
 	LoginButton loginButton;
 	CallbackManager callbackManager;
 	GraphRequestAsyncTask graphRequest;
-	private ProfileTracker profileTracker;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +65,12 @@ public class LoginActivity extends Activity {
 									public void onCompleted(JSONObject object,
 											GraphResponse response) {
 										// Application code
-										Log.i(TAG,
-												response.toString());
+										Log.i(TAG, object.toString());
+										processFacebookLogin(object);
 									}
 								});
 						Bundle parameters = new Bundle();
-						parameters.putString("fields",
-								"id,name,email");
+						parameters.putString("fields", "id,name,email,picture");
 						request.setParameters(parameters);
 						request.executeAsync();
 
@@ -96,17 +86,6 @@ public class LoginActivity extends Activity {
 						// App code
 					}
 				});
-
-		// profileTracker = new ProfileTracker() {
-		// @Override
-		// protected void onCurrentProfileChanged(
-		// Profile oldProfile,
-		// Profile currentProfile) {
-		// // App code
-		// String id = currentProfile.getId();
-		// Log.i(TAG, id);
-		// }
-		// };
 
 		pDialog = new ProgressDialog(this);
 	}
@@ -153,60 +132,100 @@ public class LoginActivity extends Activity {
 		}
 	}
 
+	private void processFacebookLogin(JSONObject json) {
+		try {
+			Log.i(TAG, "trying to login with facebook");
+
+			JSONObject picture = json.getJSONObject("picture");
+			JSONObject data = picture.getJSONObject("data");
+
+			new FacebookLoginAsyncTask().execute(json.getString("id"),
+					json.getString("name"), json.getString("email"),
+					data.getString("url"));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private class FacebookLoginAsyncTask extends
+			AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... params) {
+			return UserWeb.saveFacebookUser(params[0], params[1], params[2],
+					params[3]);
+		}
+
+		protected void onPostExecute(String result) {
+			processResult(result);
+		}
+	}
+
 	private class ReadJsonAsyncTask extends AsyncTask<String, Void, String> {
 
 		@Override
 		protected String doInBackground(String... params) {
+
 			return UserWeb.login(params[0], params[1]);
+
 		}
 
 		protected void onPostExecute(String result) {
-			Log.e(TAG, result);
-			SettingDAO bdInstance = new SettingDAO(getApplicationContext());
+			processResult(result);
+		}
+	}
+
+	protected void processResult(String result) {
+		Log.e(TAG, result);
+		SettingDAO bdInstance = new SettingDAO(getApplicationContext());
+
+		try {
+			JSONObject json = new JSONObject(result);
 
 			try {
-				JSONObject json = new JSONObject(result);
+				Setting loggedUserId = new Setting(SettingsID.LOGGED_USER_ID,
+						json.getString("idUser"));
+				Setting loggedUserPassword = new Setting(
+						SettingsID.LOGGED_USER_PASSWORD,
+						json.getString("password"));
+				Setting loggedUserPhotoPatch = new Setting(
+						SettingsID.LOGGED_USER_PHOTO_PATCH,
+						json.getString("photo_patch"));
 
-				try {
-					Setting loggedUserId = new Setting(
-							SettingsID.LOGGED_USER_ID, json.getString("idUser"));
-					Setting loggedUserPassword = new Setting(
-							SettingsID.LOGGED_USER_PASSWORD,
-							json.getString("password"));
+				bdInstance.open();
+				bdInstance.saveSetting(loggedUserPassword);
+				bdInstance.saveSetting(loggedUserId);
+				bdInstance.saveSetting(loggedUserPhotoPatch);
+				bdInstance.close();
 
-					bdInstance.open();
-					bdInstance.saveSetting(loggedUserPassword);
-					bdInstance.saveSetting(loggedUserId);
-					bdInstance.close();
+				Intent it = new Intent(getBaseContext(), MainActivity.class);
+				it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+						| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(it);
+				finish();
 
-					Intent it = new Intent(getBaseContext(), MainActivity.class);
-					it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-							| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(it);
-					finish();
-
-				} catch (Exception e0) {
-					Toast.makeText(getBaseContext(), json.getString("erro"),
-							Toast.LENGTH_SHORT).show();
-				}
-
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-
-				String erro = getResources().getString(R.string.erro_conexao);
-
-				Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT)
-						.show();
-
-				pDialog.dismiss();
-			} catch (Exception e2) {
-
-				e2.printStackTrace();
-				Toast.makeText(getBaseContext(), e2.getLocalizedMessage(),
+			} catch (Exception e0) {
+				Toast.makeText(getBaseContext(), json.getString("error"),
 						Toast.LENGTH_SHORT).show();
-
-				pDialog.dismiss();
 			}
+
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+
+			String erro = getResources().getString(R.string.erro_conexao);
+
+			Toast.makeText(getBaseContext(), erro, Toast.LENGTH_SHORT).show();
+
+			pDialog.dismiss();
+		} catch (Exception e2) {
+
+			e2.printStackTrace();
+			Toast.makeText(getBaseContext(), e2.getLocalizedMessage(),
+					Toast.LENGTH_SHORT).show();
+
+			pDialog.dismiss();
 		}
+
 	}
 }

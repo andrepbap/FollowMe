@@ -33,6 +33,24 @@ public abstract class UserWeb {
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
+	public static String saveFacebookUser(String facebookId, String userName, String email, String photo_patch){
+		String url = ServerParams.getApiUrl() + "user/save-facebook-user";
+		
+		jo = new JSONObject();
+		
+		try {
+			jo.put("apiKey", ServerParams.getEncryptedApiKey());
+			jo.put("facebookId", facebookId);
+			jo.put("userName", userName);
+			jo.put("email", email);
+			jo.put("photo_patch", photo_patch);
+		} catch (JSONException e1) {
+			Log.e(TAG, "login error");
+		}
+		Log.i(TAG, jo.toString());
+		return HttpConnection.getSetDataWeb(url, jo.toString());
+	}
+	
 	public static String atualizaPosicao(int idUser, Double latitude, Double longitude) {
 		String url = ServerParams.getApiUrl() + "user/" + idUser + "/set-position";
 
@@ -76,7 +94,6 @@ public abstract class UserWeb {
 			jo.put("userName", name);
 			jo.put("email", email);
 			jo.put("password", password);
-
 		} catch (JSONException e1) {
 			Log.e(TAG, "register error");
 		}

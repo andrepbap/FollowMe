@@ -144,7 +144,9 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.main_logoff:
+		case R.id.menu_add_group:
+			Intent itCreateGroup = new Intent(this, CreateGroupActivity.class);
+			startActivity(itCreateGroup);
 			break;
 		case R.id.menu_settings:
 			Intent itSetting = new Intent(this, SettingActivity.class);

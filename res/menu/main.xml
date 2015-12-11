@@ -1,7 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/main_logoff" android:title="@string/menu_main_logoff"></item>
-    <item android:id="@+id/menu_settings" android:title="@string/txt_settings" android:showAsAction="ifRoom|withText" android:icon="@drawable/ic_settings"></item>
-   
-     
+
+    <item android:id="@+id/menu_add_group" android:icon="@drawable/ic_menu_add" android:showAsAction="ifRoom|withText" android:title="@string/menu_main_add_group">
+    </item><item
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/ic_menu_preferences"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/txt_settings">
+    </item>
+    
 
 </menu>

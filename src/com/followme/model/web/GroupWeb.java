@@ -25,4 +25,21 @@ public class GroupWeb {
 		return HttpConnection.getSetDataWeb(url, jo.toString());
 	}
 	
+	public static String createGroup(int idUser, String name, String description){
+		String url = ServerParams.getApiUrl() + "group/save";
+		
+		jo = new JSONObject();
+		
+		try {
+			jo.put("apiKey", ServerParams.getEncryptedApiKey());
+			jo.put("idUser", idUser);
+			jo.put("name", name);
+			jo.put("description", description);
+		} catch (JSONException e1) {
+			Log.e("Script", "erro Json");
+		}
+
+		return HttpConnection.getSetDataWeb(url, jo.toString());
+	}
+	
 }

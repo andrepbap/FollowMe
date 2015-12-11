@@ -108,9 +108,7 @@ public class MapaActivity extends Activity implements
 			Intent it = getIntent();
 
 			String idGroup = it.getStringExtra("idGroup");
-			String nome_grupo = it.getStringExtra("nome_grupo");
 			this.idGroup = idGroup;
-			this.nome_grupo = nome_grupo;
 			getActionBar().setTitle(this.nome_grupo);
 
 		} catch (Exception erro) {
